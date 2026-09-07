@@ -2,7 +2,6 @@ package com.rrmotor.hargapart;
 
 import android.os.Bundle;
 import android.text.InputType;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -16,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -54,44 +54,38 @@ public class MainActivity extends AppCompatActivity {
         judul.setText("🏍️ RR MOTOR\nCEK HARGA PART");
         judul.setTextSize(24);
         judul.setPadding(0, 0, 0, 25);
-
         layout.addView(judul);
 
         TextView subjudul = new TextView(this);
         subjudul.setText("Buku Harga & Stok Part");
         subjudul.setTextSize(17);
         subjudul.setPadding(0, 0, 0, 15);
-
         layout.addView(subjudul);
 
         // =========================
-        // PENCARIAN
+        // CARI PART
         // =========================
 
         TextView judulCari = new TextView(this);
         judulCari.setText("🔎 CARI PART");
         judulCari.setTextSize(19);
         judulCari.setPadding(0, 15, 0, 5);
-
         layout.addView(judulCari);
 
         cariInput = buatInput(
                 "Nama atau Kode Part",
                 "Contoh: BUSI atau CPR6EA"
         );
-
         layout.addView(cariInput);
 
         Button cariButton = new Button(this);
         cariButton.setText("🔎 CARI");
         cariButton.setOnClickListener(v -> cariPart());
-
         layout.addView(cariButton);
 
         hasilCari = new TextView(this);
         hasilCari.setTextSize(16);
         hasilCari.setPadding(0, 15, 0, 20);
-
         layout.addView(hasilCari);
 
         // =========================
@@ -102,60 +96,54 @@ public class MainActivity extends AppCompatActivity {
         judulTambah.setText("➕ TAMBAH PART");
         judulTambah.setTextSize(19);
         judulTambah.setPadding(0, 15, 0, 5);
-
         layout.addView(judulTambah);
 
         namaPartInput = buatInput(
                 "Nama Part *",
                 "Contoh: BUSI NGK CPR6EA"
         );
-
         layout.addView(namaPartInput);
 
         hargaPokokInput = buatInput(
                 "Harga Pokok / Modal *",
                 "Contoh: 18000"
         );
-
         hargaPokokInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-
         layout.addView(hargaPokokInput);
 
         kodePartInput = buatInput(
                 "Kode Part",
                 "Contoh: CPR6EA"
         );
-
         layout.addView(kodePartInput);
 
         stokInput = buatInput(
                 "Stok",
                 "Contoh: 10"
         );
-
         stokInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-
         layout.addView(stokInput);
 
         supplierInput = buatInput(
                 "Supplier",
                 "Nama supplier"
         );
-
         layout.addView(supplierInput);
 
         catatanInput = buatInput(
                 "Catatan",
                 "Catatan tambahan"
         );
-
         layout.addView(catatanInput);
+
+        Button hitungHargaButton = new Button(this);
+        hitungHargaButton.setText("💰 HITUNG HARGA JUAL");
+        hitungHargaButton.setOnClickListener(v -> hitungHargaJual());
+        layout.addView(hitungHargaButton);
 
         Button simpanButton = new Button(this);
         simpanButton.setText("💾 SIMPAN PART");
-
         simpanButton.setOnClickListener(v -> simpanPart());
-
         layout.addView(simpanButton);
 
         // =========================
@@ -164,19 +152,16 @@ public class MainActivity extends AppCompatActivity {
 
         Button scanButton = new Button(this);
         scanButton.setText("📷 SCAN NOTA SUPPLIER");
-
         scanButton.setOnClickListener(v ->
                 Toast.makeText(
                         MainActivity.this,
-                        "Fitur OCR akan kita pasang setelah pencarian selesai.",
+                        "Fitur OCR akan kita pasang setelah fitur harga selesai.",
                         Toast.LENGTH_LONG
                 ).show()
         );
-
         layout.addView(scanButton);
 
         scrollView.addView(layout);
-
         setContentView(scrollView);
     }
 
@@ -195,10 +180,200 @@ public class MainActivity extends AppCompatActivity {
                 );
 
         params.setMargins(0, 5, 0, 10);
-
         input.setLayoutParams(params);
 
         return input;
+    }
+
+    // =====================================================
+    // HITUNG HARGA JUAL
+    // =====================================================
+
+    private void hitungHargaJual() {
+
+        String nama =
+                namaPartInput.getText().toString().trim();
+
+        String hargaText =
+                hargaPokokInput.getText().toString().trim();
+
+        if (nama.isEmpty()) {
+            namaPartInput.setError("Nama Part wajib diisi");
+            namaPartInput.requestFocus();
+            return;
+        }
+
+        if (hargaText.isEmpty()) {
+            hargaPokokInput.setError("Harga Pokok wajib diisi");
+            hargaPokokInput.requestFocus();
+            return;
+        }
+
+        long modal;
+
+        try {
+            modal = Long.parseLong(hargaText);
+        } catch (NumberFormatException e) {
+            hargaPokokInput.setError("Harga tidak valid");
+            hargaPokokInput.requestFocus();
+            return;
+        }
+
+        double[] margin = hitungMargin(nama, modal);
+
+        long hargaMin =
+                Math.round(modal * (1.0 + margin[0]));
+
+        long hargaMax =
+                Math.round(modal * (1.0 + margin[1]));
+
+        String hasil =
+                "💰 HARGA JUAL\n\n"
+                + "Modal: " + formatRupiah(modal) + "\n"
+                + "Margin: "
+                + formatPersen(margin[0])
+                + " - "
+                + formatPersen(margin[1])
+                + "\n\n"
+                + "Harga Jual Minimum:\n"
+                + formatRupiah(hargaMin)
+                + "\n\n"
+                + "Harga Jual Maksimum:\n"
+                + formatRupiah(hargaMax);
+
+        hasilCari.setText(hasil);
+
+        Toast.makeText(
+                this,
+                "Harga jual berhasil dihitung",
+                Toast.LENGTH_SHORT
+        ).show();
+    }
+
+    // =====================================================
+    // ATURAN MARGIN
+    // =====================================================
+
+    private double[] hitungMargin(String nama, long modal) {
+
+        String namaKecil =
+                nama.toLowerCase(Locale.ROOT);
+
+        // OLI = 10% khusus
+        if (namaKecil.contains("oli")) {
+            return new double[]{0.10, 0.10};
+        }
+
+        /*
+         * Batas margin:
+         *
+         * < 10.000       = 100% - 120%
+         * 15.000 - 25.000 = 60% - 80%
+         * 30.000 - 50.000 = 35% - 50%
+         * 60.000 - 90.000 = 20% - 30%
+         * 100.000-150.000 = 10% - 18%
+         * 160.000-200.000 = 10% - 15%
+         */
+
+        if (modal < 10000) {
+            return new double[]{1.00, 1.20};
+        }
+
+        if (modal < 15000) {
+            return interpolasi(
+                    modal,
+                    10000, 15000,
+                    1.00, 0.60,
+                    1.20, 0.80
+            );
+        }
+
+        if (modal <= 25000) {
+            return new double[]{0.60, 0.80};
+        }
+
+        if (modal < 30000) {
+            return interpolasi(
+                    modal,
+                    25000, 30000,
+                    0.60, 0.35,
+                    0.80, 0.50
+            );
+        }
+
+        if (modal <= 50000) {
+            return new double[]{0.35, 0.50};
+        }
+
+        if (modal < 60000) {
+            return interpolasi(
+                    modal,
+                    50000, 60000,
+                    0.35, 0.20,
+                    0.50, 0.30
+            );
+        }
+
+        if (modal <= 90000) {
+            return new double[]{0.20, 0.30};
+        }
+
+        if (modal < 100000) {
+            return interpolasi(
+                    modal,
+                    90000, 100000,
+                    0.20, 0.10,
+                    0.30, 0.18
+            );
+        }
+
+        if (modal <= 150000) {
+            return new double[]{0.10, 0.18};
+        }
+
+        if (modal < 160000) {
+            return interpolasi(
+                    modal,
+                    150000, 160000,
+                    0.10, 0.10,
+                    0.18, 0.15
+            );
+        }
+
+        if (modal <= 200000) {
+            return new double[]{0.10, 0.15};
+        }
+
+        // Di atas 200.000:
+        // tetap menggunakan margin terakhir.
+        return new double[]{0.10, 0.15};
+    }
+
+    private double[] interpolasi(
+            long nilai,
+            long batasBawah,
+            long batasAtas,
+            double minBawah,
+            double minAtas,
+            double maxBawah,
+            double maxAtas) {
+
+        double posisi =
+                (double) (nilai - batasBawah)
+                        / (double) (batasAtas - batasBawah);
+
+        double marginMin =
+                minBawah
+                        + posisi * (minAtas - minBawah);
+
+        double marginMax =
+                maxBawah
+                        + posisi * (maxAtas - maxBawah);
+
+        return new double[]{
+                marginMin,
+                marginMax
+        };
     }
 
     // =====================================================
@@ -214,42 +389,24 @@ public class MainActivity extends AppCompatActivity {
                 hargaPokokInput.getText().toString().trim();
 
         if (namaPart.isEmpty()) {
-
-            namaPartInput.setError(
-                    "Nama Part wajib diisi"
-            );
-
+            namaPartInput.setError("Nama Part wajib diisi");
             namaPartInput.requestFocus();
-
             return;
         }
 
         if (hargaText.isEmpty()) {
-
-            hargaPokokInput.setError(
-                    "Harga Pokok wajib diisi"
-            );
-
+            hargaPokokInput.setError("Harga Pokok wajib diisi");
             hargaPokokInput.requestFocus();
-
             return;
         }
 
         long hargaPokok;
 
         try {
-
-            hargaPokok =
-                    Long.parseLong(hargaText);
-
+            hargaPokok = Long.parseLong(hargaText);
         } catch (NumberFormatException e) {
-
-            hargaPokokInput.setError(
-                    "Harga tidak valid"
-            );
-
+            hargaPokokInput.setError("Harga tidak valid");
             hargaPokokInput.requestFocus();
-
             return;
         }
 
@@ -261,33 +418,51 @@ public class MainActivity extends AppCompatActivity {
         if (!stokText.isEmpty()) {
 
             try {
-
-                stok =
-                        Long.parseLong(stokText);
-
+                stok = Long.parseLong(stokText);
             } catch (NumberFormatException e) {
-
-                stokInput.setError(
-                        "Stok tidak valid"
-                );
-
+                stokInput.setError("Stok tidak valid");
                 stokInput.requestFocus();
-
                 return;
             }
         }
 
+        double[] margin =
+                hitungMargin(namaPart, hargaPokok);
+
+        long hargaJualMin =
+                Math.round(
+                        hargaPokok * (1.0 + margin[0])
+                );
+
+        long hargaJualMax =
+                Math.round(
+                        hargaPokok * (1.0 + margin[1])
+                );
+
         Map<String, Object> data =
-                new java.util.HashMap<>();
+                new HashMap<>();
+
+        data.put("namaPart", namaPart);
+        data.put("hargaPokok", hargaPokok);
 
         data.put(
-                "namaPart",
-                namaPart
+                "marginMin",
+                margin[0]
         );
 
         data.put(
-                "hargaPokok",
-                hargaPokok
+                "marginMax",
+                margin[1]
+        );
+
+        data.put(
+                "hargaJualMin",
+                hargaJualMin
+        );
+
+        data.put(
+                "hargaJualMax",
+                hargaJualMax
         );
 
         data.put(
@@ -352,7 +527,7 @@ public class MainActivity extends AppCompatActivity {
                 cariInput.getText()
                         .toString()
                         .trim()
-                        .toLowerCase();
+                        .toLowerCase(Locale.ROOT);
 
         if (kataKunci.isEmpty()) {
 
@@ -402,20 +577,14 @@ public class MainActivity extends AppCompatActivity {
                                     kode = "";
                                 }
 
-                                String namaKecil =
-                                        nama.toLowerCase();
-
-                                String kodeKecil =
-                                        kode.toLowerCase();
-
                                 if (
-                                        namaKecil.contains(
-                                                kataKunci
-                                        )
+                                        nama.toLowerCase(
+                                                Locale.ROOT
+                                        ).contains(kataKunci)
                                         ||
-                                        kodeKecil.contains(
-                                                kataKunci
-                                        )
+                                        kode.toLowerCase(
+                                                Locale.ROOT
+                                        ).contains(kataKunci)
                                 ) {
 
                                     jumlah++;
@@ -428,6 +597,16 @@ public class MainActivity extends AppCompatActivity {
                                     Long stok =
                                             document.getLong(
                                                     "stok"
+                                            );
+
+                                    Long hargaMin =
+                                            document.getLong(
+                                                    "hargaJualMin"
+                                            );
+
+                                    Long hargaMax =
+                                            document.getLong(
+                                                    "hargaJualMax"
                                             );
 
                                     String supplier =
@@ -446,6 +625,34 @@ public class MainActivity extends AppCompatActivity {
 
                                     if (stok == null) {
                                         stok = 0L;
+                                    }
+
+                                    if (hargaMin == null) {
+                                        double[] m =
+                                                hitungMargin(
+                                                        nama,
+                                                        harga
+                                                );
+
+                                        hargaMin =
+                                                Math.round(
+                                                        harga
+                                                                * (1 + m[0])
+                                                );
+                                    }
+
+                                    if (hargaMax == null) {
+                                        double[] m =
+                                                hitungMargin(
+                                                        nama,
+                                                        harga
+                                                );
+
+                                        hargaMax =
+                                                Math.round(
+                                                        harga
+                                                                * (1 + m[1])
+                                                );
                                     }
 
                                     if (supplier == null
@@ -470,9 +677,7 @@ public class MainActivity extends AppCompatActivity {
                                             nama
                                     );
 
-                                    hasil.append(
-                                            "\n"
-                                    );
+                                    hasil.append("\n");
 
                                     if (!kode.isEmpty()) {
 
@@ -484,9 +689,7 @@ public class MainActivity extends AppCompatActivity {
                                                 kode
                                         );
 
-                                        hasil.append(
-                                                "\n"
-                                        );
+                                        hasil.append("\n");
                                     }
 
                                     hasil.append(
@@ -499,9 +702,29 @@ public class MainActivity extends AppCompatActivity {
                                             )
                                     );
 
+                                    hasil.append("\n");
+
                                     hasil.append(
-                                            "\n"
+                                            "Harga Jual: "
                                     );
+
+                                    hasil.append(
+                                            formatRupiah(
+                                                    hargaMin
+                                            )
+                                    );
+
+                                    hasil.append(
+                                            " - "
+                                    );
+
+                                    hasil.append(
+                                            formatRupiah(
+                                                    hargaMax
+                                            )
+                                    );
+
+                                    hasil.append("\n");
 
                                     hasil.append(
                                             "Stok: "
@@ -511,9 +734,7 @@ public class MainActivity extends AppCompatActivity {
                                             stok
                                     );
 
-                                    hasil.append(
-                                            "\n"
-                                    );
+                                    hasil.append("\n");
 
                                     hasil.append(
                                             "Supplier: "
@@ -523,9 +744,7 @@ public class MainActivity extends AppCompatActivity {
                                             supplier
                                     );
 
-                                    hasil.append(
-                                            "\n"
-                                    );
+                                    hasil.append("\n");
 
                                     hasil.append(
                                             "Catatan: "
@@ -535,22 +754,9 @@ public class MainActivity extends AppCompatActivity {
                                             catatan
                                     );
 
-                                    hasil.append(
-                                            "\n"
-                                    );
+                                    hasil.append("\n");
                                 }
                             }
-
-                            hasil.append(
-                                    "━━━━━━━━━━━━━━━━━━\n"
-                            );
-
-                            hasil.insert(
-                                    0,
-                                    "Ditemukan "
-                                            + jumlah
-                                            + " part\n\n"
-                            );
 
                             if (jumlah == 0) {
 
@@ -559,6 +765,17 @@ public class MainActivity extends AppCompatActivity {
                                 );
 
                             } else {
+
+                                hasil.insert(
+                                        0,
+                                        "Ditemukan "
+                                                + jumlah
+                                                + " part\n\n"
+                                );
+
+                                hasil.append(
+                                        "━━━━━━━━━━━━━━━━━━\n"
+                                );
 
                                 hasilCari.setText(
                                         hasil.toString()
@@ -596,6 +813,15 @@ public class MainActivity extends AppCompatActivity {
 
         return format.format(angka)
                 .replace(",00", "");
+    }
+
+    private String formatPersen(double angka) {
+
+        return String.format(
+                Locale.US,
+                "%.1f%%",
+                angka * 100
+        );
     }
 
     // =====================================================
