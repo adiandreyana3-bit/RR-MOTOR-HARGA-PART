@@ -34,6 +34,7 @@ dependencies {
     implementation 'androidx.core:core:1.15.0'
 
     implementation 'com.google.firebase:firebase-firestore:25.1.4'
+    implementation 'com.google.firebase:firebase-auth:23.2.1'
 
     // OCR Google ML Kit
     implementation 'com.google.mlkit:text-recognition:16.0.1'
