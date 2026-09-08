@@ -5,6 +5,7 @@
 
     <application
         android:allowBackup="false"
+        android:icon="@drawable/icon_rr_motor"
         android:label="RR MOTOR CEK HARGA PART"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
