@@ -5,12 +5,17 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -64,6 +69,25 @@ public class MainActivity extends AppCompatActivity {
 
     private final Locale localeIndonesia =
             new Locale("id", "ID");
+
+    // =========================================================
+    // URL KATALOG INTERNET
+    // =========================================================
+
+    private static final String HONDA_CATALOG =
+            "https://www.hondamotopub.com/AHJ";
+
+    private static final String HONDA_BEAT_2025 =
+            "https://www.hondamotopub.com/pc/HPI/BeAT/2025";
+
+    private static final String HONDA_BEAT_2024 =
+            "https://www.hondamotopub.com/pc/AHJ/BEAT%20%26%20BEAT%20STREET/2024";
+
+    private static final String HONDA_BEAT_K1A_SUMA =
+            "https://suma-honda.com/catalog/katalog-suku-cadang-honda-beat-k1a-Q1RMLUJFQVQtMDA0";
+
+    private static final String YAMAHA_CATALOG =
+            "https://www.yamaha-motor.co.id/parts-catalogue/";
 
     // =========================================================
     // ON CREATE
@@ -150,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
 
         email.setInputType(
                 InputType.TYPE_CLASS_TEXT |
-                InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+                        InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
         );
 
         rootLayout.addView(
@@ -165,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
         password.setInputType(
                 InputType.TYPE_CLASS_TEXT |
-                InputType.TYPE_TEXT_VARIATION_PASSWORD
+                        InputType.TYPE_TEXT_VARIATION_PASSWORD
         );
 
         rootLayout.addView(
@@ -230,11 +254,11 @@ public class MainActivity extends AppCompatActivity {
 
                     toast(
                             "Login gagal: " +
-                            (
-                                    task.getException() != null
-                                            ? task.getException().getMessage()
-                                            : "Periksa email/password"
-                            )
+                                    (
+                                            task.getException() != null
+                                                    ? task.getException().getMessage()
+                                                    : "Periksa email/password"
+                                    )
                     );
                 }
             });
@@ -292,11 +316,11 @@ public class MainActivity extends AppCompatActivity {
 
                     toast(
                             "Pendaftaran gagal: " +
-                            (
-                                    task.getException() != null
-                                            ? task.getException().getMessage()
-                                            : ""
-                            )
+                                    (
+                                            task.getException() != null
+                                                    ? task.getException().getMessage()
+                                                    : ""
+                                    )
                     );
                 }
             });
@@ -340,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
 
             loginInfo.setText(
                     "Login: " +
-                    user.getEmail()
+                            user.getEmail()
             );
 
             loginInfo.setGravity(
@@ -372,6 +396,18 @@ public class MainActivity extends AppCompatActivity {
 
         rootLayout.addView(
                 katalog,
+                params()
+        );
+
+        // =====================================================
+        // MENU BARU KATALOG INTERNET
+        // =====================================================
+
+        Button katalogInternet =
+                tombol("🌐 KATALOG INTERNET");
+
+        rootLayout.addView(
+                katalogInternet,
                 params()
         );
 
@@ -425,6 +461,10 @@ public class MainActivity extends AppCompatActivity {
                 v -> tampilkanKatalogPart()
         );
 
+        katalogInternet.setOnClickListener(
+                v -> tampilkanPilihanKatalogInternet()
+        );
+
         substitusi.setOnClickListener(
                 v -> tampilkanSubstitusiPart()
         );
@@ -470,6 +510,448 @@ public class MainActivity extends AppCompatActivity {
 
                     .show();
         });
+    }
+
+    // =========================================================
+    // KATALOG INTERNET
+    // =========================================================
+
+    private void tampilkanPilihanKatalogInternet() {
+
+        LinearLayout layout =
+                formLayout();
+
+        TextView title =
+                buatJudul(
+                        "🌐 KATALOG PART INTERNET"
+                );
+
+        layout.addView(title);
+
+        TextView info =
+                new TextView(this);
+
+        info.setText(
+                "Pilih sumber katalog.\n\n" +
+                        "Katalog internet menampilkan data part " +
+                        "langsung dari situs katalog."
+        );
+
+        info.setTextSize(16);
+
+        info.setPadding(
+                0,
+                0,
+                0,
+                20
+        );
+
+        layout.addView(info);
+
+        Button honda =
+                tombol(
+                        "🏍️ HONDA"
+                );
+
+        layout.addView(
+                honda,
+                params()
+        );
+
+        Button yamaha =
+                tombol(
+                        "🏍️ YAMAHA"
+                );
+
+        layout.addView(
+                yamaha,
+                params()
+        );
+
+        Button hondaBeat =
+                tombol(
+                        "🔧 HONDA BEAT - KATALOG PART"
+                );
+
+        layout.addView(
+                hondaBeat,
+                params()
+        );
+
+        Button hondaBeatK1A =
+                tombol(
+                        "📚 HONDA BEAT K1A 2020-2024"
+                );
+
+        layout.addView(
+                hondaBeatK1A,
+                params()
+        );
+
+        Button kembali =
+                tombol(
+                        "⬅️ KEMBALI"
+                );
+
+        layout.addView(
+                kembali,
+                params()
+        );
+
+        setFormContent(layout);
+
+        honda.setOnClickListener(
+                v ->
+                        bukaKatalogInternet(
+                                "Honda MotoPub",
+                                HONDA_CATALOG
+                        )
+        );
+
+        yamaha.setOnClickListener(
+                v ->
+                        bukaKatalogInternet(
+                                "Yamaha Parts Catalogue",
+                                YAMAHA_CATALOG
+                        )
+        );
+
+        hondaBeat.setOnClickListener(
+                v ->
+                        tampilkanPilihanHondaBeat()
+        );
+
+        hondaBeatK1A.setOnClickListener(
+                v ->
+                        bukaKatalogInternet(
+                                "Honda Beat K1A 2020-2024",
+                                HONDA_BEAT_K1A_SUMA
+                        )
+        );
+
+        kembali.setOnClickListener(
+                v ->
+                        tampilkanMenuUtama()
+        );
+    }
+
+    private void tampilkanPilihanHondaBeat() {
+
+        String[] daftar = {
+                "Honda BeAT 2025",
+                "Honda BeAT & BeAT Street 2024",
+                "Honda BeAT K1A 2020-2024",
+                "Kembali"
+        };
+
+        new AlertDialog.Builder(this)
+
+                .setTitle(
+                        "📚 PILIH KATALOG HONDA BEAT"
+                )
+
+                .setItems(
+                        daftar,
+                        (dialog, which) -> {
+
+                            if (which == 0) {
+
+                                bukaKatalogInternet(
+                                        "Honda BeAT 2025",
+                                        HONDA_BEAT_2025
+                                );
+
+                            } else if (which == 1) {
+
+                                bukaKatalogInternet(
+                                        "Honda BeAT & BeAT Street 2024",
+                                        HONDA_BEAT_2024
+                                );
+
+                            } else if (which == 2) {
+
+                                bukaKatalogInternet(
+                                        "Honda BeAT K1A 2020-2024",
+                                        HONDA_BEAT_K1A_SUMA
+                                );
+
+                            } else {
+
+                                tampilkanPilihanKatalogInternet();
+                            }
+                        }
+                )
+
+                .show();
+    }
+
+    private void bukaKatalogInternet(
+            String judul,
+            String url) {
+
+        LinearLayout halaman =
+                new LinearLayout(this);
+
+        halaman.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        halaman.setPadding(
+                10,
+                10,
+                10,
+                10
+        );
+
+        TextView title =
+                new TextView(this);
+
+        title.setText(
+                "🌐 " + judul
+        );
+
+        title.setTextSize(
+                18
+        );
+
+        title.setGravity(
+                Gravity.CENTER
+        );
+
+        title.setPadding(
+                0,
+                10,
+                0,
+                10
+        );
+
+        halaman.addView(
+                title
+        );
+
+        LinearLayout bar =
+                new LinearLayout(this);
+
+        bar.setOrientation(
+                LinearLayout.HORIZONTAL
+        );
+
+        Button kembali =
+                tombol(
+                        "⬅️ KEMBALI"
+                );
+
+        Button browser =
+                tombol(
+                        "🌐 BROWSER"
+                );
+
+        Button simpanLink =
+                tombol(
+                        "💾 SIMPAN LINK"
+                );
+
+        bar.addView(
+                kembali,
+                new LinearLayout.LayoutParams(
+                        0,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        1
+                )
+        );
+
+        bar.addView(
+                browser,
+                new LinearLayout.LayoutParams(
+                        0,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        1
+                )
+        );
+
+        bar.addView(
+                simpanLink,
+                new LinearLayout.LayoutParams(
+                        0,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        1
+                )
+        );
+
+        halaman.addView(
+                bar
+        );
+
+        WebView webView =
+                new WebView(this);
+
+        WebSettings settings =
+                webView.getSettings();
+
+        settings.setJavaScriptEnabled(
+                true
+        );
+
+        settings.setDomStorageEnabled(
+                true
+        );
+
+        settings.setDatabaseEnabled(
+                true
+        );
+
+        settings.setSupportZoom(
+                true
+        );
+
+        settings.setBuiltInZoomControls(
+                true
+        );
+
+        settings.setDisplayZoomControls(
+                false
+        );
+
+        settings.setLoadWithOverviewMode(
+                true
+        );
+
+        settings.setUseWideViewPort(
+                true
+        );
+
+        settings.setAllowFileAccess(
+                true
+        );
+
+        settings.setJavaScriptCanOpenWindowsAutomatically(
+                true
+        );
+
+        webView.setWebViewClient(
+                new WebViewClient()
+        );
+
+        webView.setWebChromeClient(
+                new WebChromeClient()
+        );
+
+        halaman.addView(
+                webView,
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        0,
+                        1
+                )
+        );
+
+        setContentView(
+                halaman
+        );
+
+        webView.loadUrl(
+                url
+        );
+
+        kembali.setOnClickListener(
+                v ->
+                        tampilkanPilihanKatalogInternet()
+        );
+
+        browser.setOnClickListener(
+                v -> {
+
+                    try {
+
+                        Intent intent =
+                                new Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse(url)
+                                );
+
+                        startActivity(
+                                intent
+                        );
+
+                    } catch (Exception e) {
+
+                        toast(
+                                "Browser tidak tersedia."
+                        );
+                    }
+                }
+        );
+
+        simpanLink.setOnClickListener(
+                v ->
+                        simpanLinkKatalog(
+                                judul,
+                                url
+                        )
+        );
+    }
+
+    private void simpanLinkKatalog(
+            String namaKatalog,
+            String url) {
+
+        FirebaseUser user =
+                auth.getCurrentUser();
+
+        if (user == null) {
+
+            toast(
+                    "Silakan login terlebih dahulu."
+            );
+
+            return;
+        }
+
+        Map<String, Object> data =
+                new HashMap<>();
+
+        data.put(
+                "namaKatalog",
+                namaKatalog
+        );
+
+        data.put(
+                "url",
+                url
+        );
+
+        data.put(
+                "sumber",
+                "Internet"
+        );
+
+        data.put(
+                "aktif",
+                true
+        );
+
+        data.put(
+                "updatedAt",
+                FieldValue.serverTimestamp()
+        );
+
+        db.collection(
+                        "internetCatalog"
+                )
+                .add(data)
+                .addOnSuccessListener(
+                        x ->
+                                toast(
+                                        "Link katalog berhasil disimpan."
+                                )
+                )
+                .addOnFailureListener(
+                        e ->
+                                toast(
+                                        "Gagal menyimpan link: " +
+                                                e.getMessage()
+                                )
+                );
     }
 
     // =========================================================
@@ -667,35 +1149,35 @@ public class MainActivity extends AppCompatActivity {
 
         double hargaMin =
                 modal +
-                (
-                        modal *
-                        margin[0] /
-                        100.0
-                );
+                        (
+                                modal *
+                                        margin[0] /
+                                        100.0
+                        );
 
         double hargaMax =
                 modal +
-                (
-                        modal *
-                        margin[1] /
-                        100.0
-                );
+                        (
+                                modal *
+                                        margin[1] /
+                                        100.0
+                        );
 
         hasilHargaText.setText(
                 "Harga Pokok : " +
-                rupiah(modal) +
-                "\n" +
+                        rupiah(modal) +
+                        "\n" +
 
-                "Margin      : " +
-                formatAngka(margin[0]) +
-                "% - " +
-                formatAngka(margin[1]) +
-                "%\n" +
+                        "Margin      : " +
+                        formatAngka(margin[0]) +
+                        "% - " +
+                        formatAngka(margin[1]) +
+                        "%\n" +
 
-                "Harga Jual  : " +
-                rupiah(hargaMin) +
-                " - " +
-                rupiah(hargaMax)
+                        "Harga Jual  : " +
+                        rupiah(hargaMin) +
+                        " - " +
+                        rupiah(hargaMax)
         );
     }
 
@@ -840,25 +1322,25 @@ public class MainActivity extends AppCompatActivity {
                 (
                         nilai - awal
                 ) /
-                (
-                        akhir - awal
-                );
+                        (
+                                akhir - awal
+                        );
 
         double min =
                 minAwal +
-                (
-                        minAkhir -
-                        minAwal
-                ) *
-                rasio;
+                        (
+                                minAkhir -
+                                        minAwal
+                        ) *
+                                rasio;
 
         double max =
                 maxAwal +
-                (
-                        maxAkhir -
-                        maxAwal
-                ) *
-                rasio;
+                        (
+                                maxAkhir -
+                                        maxAwal
+                        ) *
+                                rasio;
 
         return new double[]{
                 min,
@@ -924,15 +1406,15 @@ public class MainActivity extends AppCompatActivity {
 
         double hargaMin =
                 modal +
-                modal *
-                margin[0] /
-                100.0;
+                        modal *
+                                margin[0] /
+                                100.0;
 
         double hargaMax =
                 modal +
-                modal *
-                margin[1] /
-                100.0;
+                        modal *
+                                margin[1] /
+                                100.0;
 
         Map<String, Object> data =
                 new HashMap<>();
@@ -1022,20 +1504,20 @@ public class MainActivity extends AppCompatActivity {
 
                                     .setMessage(
                                             "Nama: " +
-                                            nama +
-                                            "\n\n" +
+                                                    nama +
+                                                    "\n\n" +
 
-                                            "Harga jual:\n" +
+                                                    "Harga jual:\n" +
 
-                                            rupiah(
-                                                    hargaMin
-                                            ) +
+                                                    rupiah(
+                                                            hargaMin
+                                                    ) +
 
-                                            " - " +
+                                                    " - " +
 
-                                            rupiah(
-                                                    hargaMax
-                                            )
+                                                    rupiah(
+                                                            hargaMax
+                                                    )
                                     )
 
                                     .setPositiveButton(
@@ -1053,7 +1535,7 @@ public class MainActivity extends AppCompatActivity {
                         e ->
                                 toast(
                                         "Gagal menyimpan: " +
-                                        e.getMessage()
+                                                e.getMessage()
                                 )
                 );
     }
@@ -1196,23 +1678,23 @@ public class MainActivity extends AppCompatActivity {
                                 boolean cocok =
                                         kata.isEmpty()
 
-                                        ||
+                                                ||
 
-                                        nama.toLowerCase(
-                                                Locale.ROOT
-                                        ).contains(cari)
+                                                nama.toLowerCase(
+                                                        Locale.ROOT
+                                                ).contains(cari)
 
-                                        ||
+                                                ||
 
-                                        kode.toLowerCase(
-                                                Locale.ROOT
-                                        ).contains(cari)
+                                                kode.toLowerCase(
+                                                        Locale.ROOT
+                                                ).contains(cari)
 
-                                        ||
+                                                ||
 
-                                        supplier.toLowerCase(
-                                                Locale.ROOT
-                                        ).contains(cari);
+                                                supplier.toLowerCase(
+                                                        Locale.ROOT
+                                                ).contains(cari);
 
                                 if (!cocok) {
                                     continue;
@@ -1334,8 +1816,8 @@ public class MainActivity extends AppCompatActivity {
                                 hasil.insert(
                                         0,
                                         "Ditemukan " +
-                                        jumlah +
-                                        " part.\n"
+                                                jumlah +
+                                                " part.\n"
                                 );
                             }
 
@@ -1349,7 +1831,7 @@ public class MainActivity extends AppCompatActivity {
                         e ->
                                 toast(
                                         "Gagal mencari: " +
-                                        e.getMessage()
+                                                e.getMessage()
                                 )
                 );
     }
@@ -1439,7 +1921,7 @@ public class MainActivity extends AppCompatActivity {
                         e ->
                                 toast(
                                         "Gagal mengambil data: " +
-                                        e.getMessage()
+                                                e.getMessage()
                                 )
                 );
     }
@@ -1597,8 +2079,8 @@ public class MainActivity extends AppCompatActivity {
 
                     .setMessage(
                             "Hapus " +
-                            nama +
-                            "?"
+                                    nama +
+                                    "?"
                     )
 
                     .setNegativeButton(
@@ -1631,7 +2113,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // =========================================================
-    // KATALOG PART MOTOR
+    // KATALOG PART MOTOR FIRESTORE
     // =========================================================
 
     private void tampilkanKatalogPart() {
@@ -1805,47 +2287,47 @@ public class MainActivity extends AppCompatActivity {
                                 boolean cocok =
                                         kata.isEmpty()
 
-                                        ||
+                                                ||
 
-                                        mengandung(
-                                                merk,
-                                                cari
-                                        )
+                                                mengandung(
+                                                        merk,
+                                                        cari
+                                                )
 
-                                        ||
+                                                ||
 
-                                        mengandung(
-                                                model,
-                                                cari
-                                        )
+                                                mengandung(
+                                                        model,
+                                                        cari
+                                                )
 
-                                        ||
+                                                ||
 
-                                        mengandung(
-                                                kategori,
-                                                cari
-                                        )
+                                                mengandung(
+                                                        kategori,
+                                                        cari
+                                                )
 
-                                        ||
+                                                ||
 
-                                        mengandung(
-                                                nama,
-                                                cari
-                                        )
+                                                mengandung(
+                                                        nama,
+                                                        cari
+                                                )
 
-                                        ||
+                                                ||
 
-                                        mengandung(
-                                                oem,
-                                                cari
-                                        )
+                                                mengandung(
+                                                        oem,
+                                                        cari
+                                                )
 
-                                        ||
+                                                ||
 
-                                        mengandung(
-                                                aftermarket,
-                                                cari
-                                        );
+                                                mengandung(
+                                                        aftermarket,
+                                                        cari
+                                                );
 
                                 if (!cocok) {
                                     continue;
@@ -1898,7 +2380,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 if (
                                         tahunMulai > 0 ||
-                                        tahunSampai > 0
+                                                tahunSampai > 0
                                 ) {
 
                                     s.append(
@@ -2016,8 +2498,8 @@ public class MainActivity extends AppCompatActivity {
                                 s.insert(
                                         0,
                                         "Ditemukan " +
-                                        jumlah +
-                                        " katalog.\n"
+                                                jumlah +
+                                                " katalog.\n"
                                 );
                             }
 
@@ -2031,7 +2513,7 @@ public class MainActivity extends AppCompatActivity {
                         e ->
                                 hasil.setText(
                                         "Gagal mengambil katalog:\n" +
-                                        e.getMessage()
+                                                e.getMessage()
                                 )
                 );
     }
@@ -2404,7 +2886,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 toast(
                                         "Gagal menyimpan katalog: " +
-                                        e.getMessage()
+                                                e.getMessage()
                                 );
                             }
                     );
@@ -2577,33 +3059,33 @@ public class MainActivity extends AppCompatActivity {
                                 boolean cocok =
                                         kata.isEmpty()
 
-                                        ||
+                                                ||
 
-                                        mengandung(
-                                                nama,
-                                                cari
-                                        )
+                                                mengandung(
+                                                        nama,
+                                                        cari
+                                                )
 
-                                        ||
+                                                ||
 
-                                        mengandung(
-                                                kodeAsal,
-                                                cari
-                                        )
+                                                mengandung(
+                                                        kodeAsal,
+                                                        cari
+                                                )
 
-                                        ||
+                                                ||
 
-                                        mengandung(
-                                                kodePengganti,
-                                                cari
-                                        )
+                                                mengandung(
+                                                        kodePengganti,
+                                                        cari
+                                                )
 
-                                        ||
+                                                ||
 
-                                        mengandung(
-                                                merk,
-                                                cari
-                                        );
+                                                mengandung(
+                                                        merk,
+                                                        cari
+                                                );
 
                                 if (!cocok) {
                                     continue;
@@ -2705,8 +3187,8 @@ public class MainActivity extends AppCompatActivity {
                                 s.insert(
                                         0,
                                         "Ditemukan " +
-                                        jumlah +
-                                        " substitusi.\n"
+                                                jumlah +
+                                                " substitusi.\n"
                                 );
                             }
 
@@ -2720,7 +3202,7 @@ public class MainActivity extends AppCompatActivity {
                         e ->
                                 hasil.setText(
                                         "Gagal mengambil substitusi:\n" +
-                                        e.getMessage()
+                                                e.getMessage()
                                 )
                 );
     }
@@ -2764,7 +3246,7 @@ public class MainActivity extends AppCompatActivity {
                         e ->
                                 toast(
                                         "Gagal mengambil katalog: " +
-                                        e.getMessage()
+                                                e.getMessage()
                                 )
                 );
     }
@@ -2775,7 +3257,7 @@ public class MainActivity extends AppCompatActivity {
         String[] daftar =
                 new String[
                         katalog.size()
-                ];
+                        ];
 
         for (
                 int i = 0;
@@ -2827,7 +3309,7 @@ public class MainActivity extends AppCompatActivity {
         String[] daftar =
                 new String[
                         katalog.size()
-                ];
+                        ];
 
         for (
                 int i = 0;
@@ -3098,7 +3580,7 @@ public class MainActivity extends AppCompatActivity {
                         e ->
                                 toast(
                                         "Gagal menyimpan substitusi: " +
-                                        e.getMessage()
+                                                e.getMessage()
                                 )
                 );
     }
@@ -3139,7 +3621,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (
                     a == null ||
-                    b == null
+                            b == null
             ) {
 
                 continue;
@@ -3172,7 +3654,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (
                 berbeda > 0 &&
-                sama > 0
+                        sama > 0
         ) {
 
             return "PERLU CEK";
@@ -3246,8 +3728,8 @@ public class MainActivity extends AppCompatActivity {
                         this,
                         Manifest.permission.CAMERA
                 )
-                !=
-                PackageManager.PERMISSION_GRANTED
+                        !=
+                        PackageManager.PERMISSION_GRANTED
         ) {
 
             ActivityCompat.requestPermissions(
@@ -3304,13 +3786,13 @@ public class MainActivity extends AppCompatActivity {
 
         if (
                 requestCode ==
-                REQUEST_CAMERA
+                        REQUEST_CAMERA
         ) {
 
             if (
                     grantResults.length > 0 &&
-                    grantResults[0] ==
-                            PackageManager.PERMISSION_GRANTED
+                            grantResults[0] ==
+                                    PackageManager.PERMISSION_GRANTED
             ) {
 
                 bukaKamera();
@@ -3339,11 +3821,11 @@ public class MainActivity extends AppCompatActivity {
         if (
                 requestCode ==
                         REQUEST_CAMERA
-                &&
-                resultCode ==
-                        RESULT_OK
-                &&
-                data != null
+                        &&
+                        resultCode ==
+                                RESULT_OK
+                        &&
+                        data != null
         ) {
 
             Bundle extras =
@@ -3391,7 +3873,7 @@ public class MainActivity extends AppCompatActivity {
                         e ->
                                 toast(
                                         "OCR gagal: " +
-                                        e.getMessage()
+                                                e.getMessage()
                                 )
                 );
     }
@@ -3404,7 +3886,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (
                 isi == null ||
-                isi.trim().isEmpty()
+                        isi.trim().isEmpty()
         ) {
 
             toast(
@@ -3546,20 +4028,20 @@ public class MainActivity extends AppCompatActivity {
 
             if (
                     lower.contains("total")
-                    ||
-                    lower.contains("subtotal")
-                    ||
-                    lower.contains("harga")
-                    ||
-                    lower.contains("qty")
-                    ||
-                    lower.contains("jumlah")
-                    ||
-                    lower.contains("rp")
-                    ||
-                    lower.matches(
-                            ".*\\d{3,}.*"
-                    )
+                            ||
+                            lower.contains("subtotal")
+                            ||
+                            lower.contains("harga")
+                            ||
+                            lower.contains("qty")
+                            ||
+                            lower.contains("jumlah")
+                            ||
+                            lower.contains("rp")
+                            ||
+                            lower.matches(
+                                    ".*\\d{3,}.*"
+                            )
             ) {
 
                 continue;
@@ -3680,17 +4162,6 @@ public class MainActivity extends AppCompatActivity {
         return layout;
     }
 
-    /*
-     * PERBAIKAN UTAMA:
-     *
-     * LinearLayout tidak langsung dimasukkan ke ScrollView
-     * sampai semua isi form selesai dibuat.
-     *
-     * Ini mencegah:
-     * "The specified child already has a parent"
-     *
-     * yang menyebabkan aplikasi langsung crash.
-     */
     private void setFormContent(
             LinearLayout layout) {
 
@@ -3786,7 +4257,7 @@ public class MainActivity extends AppCompatActivity {
 
         editText.setInputType(
                 InputType.TYPE_CLASS_NUMBER |
-                InputType.TYPE_NUMBER_FLAG_DECIMAL
+                        InputType.TYPE_NUMBER_FLAG_DECIMAL
         );
     }
 
@@ -3876,7 +4347,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (
                 text == null ||
-                text.trim().isEmpty()
+                        text.trim().isEmpty()
         ) {
 
             return 0;
@@ -3937,7 +4408,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (
                 value ==
-                Math.floor(value)
+                        Math.floor(value)
         ) {
 
             return String.valueOf(
