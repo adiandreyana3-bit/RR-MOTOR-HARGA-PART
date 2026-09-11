@@ -11,12 +11,10 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +27,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
@@ -38,11 +37,9 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
 
     private LinearLayout rootLayout;
-    private ScrollView scrollView;
 
     private EditText namaPartInput;
     private EditText hargaPokokInput;
@@ -66,7 +62,12 @@ public class MainActivity extends AppCompatActivity {
     private TextView hasilHargaText;
     private TextView hasilPencarianText;
 
-    private final Locale localeIndonesia = new Locale("id", "ID");
+    private final Locale localeIndonesia =
+            new Locale("id", "ID");
+
+    // =========================================================
+    // ON CREATE
+    // =========================================================
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     // =========================================================
 
     private void cekLoginFirebase() {
+
         FirebaseUser user = auth.getCurrentUser();
 
         if (user == null) {
@@ -93,100 +95,211 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void tampilkanLogin() {
-        rootLayout = new LinearLayout(this);
-        rootLayout.setOrientation(LinearLayout.VERTICAL);
-        rootLayout.setPadding(35, 35, 35, 35);
-        rootLayout.setGravity(Gravity.CENTER_HORIZONTAL);
 
-        TextView title = buatJudul("🏍️ RR MOTOR\nCEK HARGA PART");
+        rootLayout = new LinearLayout(this);
+
+        rootLayout.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        rootLayout.setPadding(
+                35,
+                35,
+                35,
+                35
+        );
+
+        rootLayout.setGravity(
+                Gravity.CENTER_HORIZONTAL
+        );
+
+        TextView title =
+                buatJudul(
+                        "🏍️ RR MOTOR\nCEK HARGA PART"
+                );
+
         rootLayout.addView(title);
 
-        TextView info = new TextView(this);
+        TextView info =
+                new TextView(this);
+
         info.setText(
                 "Login untuk menyimpan data part,\n" +
                 "katalog motor dan data substitusi di Firebase."
         );
-        info.setGravity(Gravity.CENTER);
+
+        info.setGravity(
+                Gravity.CENTER
+        );
+
         info.setTextSize(16);
-        info.setPadding(0, 20, 0, 30);
+
+        info.setPadding(
+                0,
+                20,
+                0,
+                30
+        );
+
         rootLayout.addView(info);
 
-        EditText email = new EditText(this);
+        EditText email =
+                new EditText(this);
+
         email.setHint("Email");
-        email.setInputType(InputType.TYPE_CLASS_TEXT |
-                InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        rootLayout.addView(email, params());
 
-        EditText password = new EditText(this);
+        email.setInputType(
+                InputType.TYPE_CLASS_TEXT |
+                InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        );
+
+        rootLayout.addView(
+                email,
+                params()
+        );
+
+        EditText password =
+                new EditText(this);
+
         password.setHint("Password");
-        password.setInputType(InputType.TYPE_CLASS_TEXT |
-                InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        rootLayout.addView(password, params());
 
-        Button login = tombol("🔐 LOGIN");
-        rootLayout.addView(login, params());
+        password.setInputType(
+                InputType.TYPE_CLASS_TEXT |
+                InputType.TYPE_TEXT_VARIATION_PASSWORD
+        );
 
-        Button daftar = tombol("➕ DAFTAR AKUN");
-        rootLayout.addView(daftar, params());
+        rootLayout.addView(
+                password,
+                params()
+        );
+
+        Button login =
+                tombol("🔐 LOGIN");
+
+        rootLayout.addView(
+                login,
+                params()
+        );
+
+        Button daftar =
+                tombol("➕ DAFTAR AKUN");
+
+        rootLayout.addView(
+                daftar,
+                params()
+        );
 
         setContentView(rootLayout);
 
         login.setOnClickListener(v -> {
-            String e = email.getText().toString().trim();
-            String p = password.getText().toString().trim();
 
-            if (e.isEmpty() || p.isEmpty()) {
-                toast("Email dan password wajib diisi.");
+            String e =
+                    email.getText()
+                            .toString()
+                            .trim();
+
+            String p =
+                    password.getText()
+                            .toString()
+                            .trim();
+
+            if (e.isEmpty() ||
+                    p.isEmpty()) {
+
+                toast(
+                        "Email dan password wajib diisi."
+                );
+
                 return;
             }
 
             login.setEnabled(false);
 
-            auth.signInWithEmailAndPassword(e, p)
-                    .addOnCompleteListener(task -> {
-                        login.setEnabled(true);
+            auth.signInWithEmailAndPassword(
+                    e,
+                    p
+            ).addOnCompleteListener(task -> {
 
-                        if (task.isSuccessful()) {
-                            tampilkanMenuUtama();
-                        } else {
-                            toast("Login gagal: " +
-                                    (task.getException() != null
+                login.setEnabled(true);
+
+                if (task.isSuccessful()) {
+
+                    tampilkanMenuUtama();
+
+                } else {
+
+                    toast(
+                            "Login gagal: " +
+                            (
+                                    task.getException() != null
                                             ? task.getException().getMessage()
-                                            : "periksa email/password"));
-                        }
-                    });
+                                            : "Periksa email/password"
+                            )
+                    );
+                }
+            });
         });
 
         daftar.setOnClickListener(v -> {
-            String e = email.getText().toString().trim();
-            String p = password.getText().toString().trim();
 
-            if (e.isEmpty() || p.isEmpty()) {
-                toast("Isi email dan password terlebih dahulu.");
+            String e =
+                    email.getText()
+                            .toString()
+                            .trim();
+
+            String p =
+                    password.getText()
+                            .toString()
+                            .trim();
+
+            if (e.isEmpty() ||
+                    p.isEmpty()) {
+
+                toast(
+                        "Isi email dan password terlebih dahulu."
+                );
+
                 return;
             }
 
             if (p.length() < 6) {
-                toast("Password minimal 6 karakter.");
+
+                toast(
+                        "Password minimal 6 karakter."
+                );
+
                 return;
             }
 
             daftar.setEnabled(false);
 
-            auth.createUserWithEmailAndPassword(e, p)
-                    .addOnCompleteListener(task -> {
-                        daftar.setEnabled(true);
+            auth.createUserWithEmailAndPassword(
+                    e,
+                    p
+            ).addOnCompleteListener(task -> {
 
-                        if (task.isSuccessful()) {
-                            toast("Akun berhasil dibuat.");
-                            tampilkanMenuUtama();
-                        } else {
-                            toast("Pendaftaran gagal: " +
-                                    (task.getException() != null
+                daftar.setEnabled(true);
+
+                if (task.isSuccessful()) {
+
+                    toast(
+                            "Akun berhasil dibuat."
+                    );
+
+                    tampilkanMenuUtama();
+
+                } else {
+
+                    toast(
+                            "Pendaftaran gagal: " +
+                            (
+                                    task.getException() != null
                                             ? task.getException().getMessage()
-                                            : ""));
-                        }
-                    });
+                                            : ""
+                            )
+                    );
+                }
+            });
         });
     }
 
@@ -196,62 +309,165 @@ public class MainActivity extends AppCompatActivity {
 
     private void tampilkanMenuUtama() {
 
-        rootLayout = new LinearLayout(this);
-        rootLayout.setOrientation(LinearLayout.VERTICAL);
-        rootLayout.setPadding(25, 25, 25, 25);
+        rootLayout =
+                new LinearLayout(this);
 
-        TextView title = buatJudul("🏍️ RR MOTOR\nCEK HARGA PART");
+        rootLayout.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        rootLayout.setPadding(
+                25,
+                25,
+                25,
+                25
+        );
+
+        TextView title =
+                buatJudul(
+                        "🏍️ RR MOTOR\nCEK HARGA PART"
+                );
+
         rootLayout.addView(title);
 
-        FirebaseUser user = auth.getCurrentUser();
+        FirebaseUser user =
+                auth.getCurrentUser();
 
         if (user != null) {
-            TextView loginInfo = new TextView(this);
-            loginInfo.setText("Login: " + user.getEmail());
-            loginInfo.setGravity(Gravity.CENTER);
-            loginInfo.setPadding(0, 5, 0, 20);
-            rootLayout.addView(loginInfo);
+
+            TextView loginInfo =
+                    new TextView(this);
+
+            loginInfo.setText(
+                    "Login: " +
+                    user.getEmail()
+            );
+
+            loginInfo.setGravity(
+                    Gravity.CENTER
+            );
+
+            loginInfo.setPadding(
+                    0,
+                    5,
+                    0,
+                    20
+            );
+
+            rootLayout.addView(
+                    loginInfo
+            );
         }
 
-        Button cari = tombol("🔎 CARI PART");
-        rootLayout.addView(cari, params());
+        Button cari =
+                tombol("🔎 CARI PART");
 
-        Button katalog = tombol("📚 KATALOG PART MOTOR");
-        rootLayout.addView(katalog, params());
+        rootLayout.addView(
+                cari,
+                params()
+        );
 
-        Button substitusi = tombol("🔄 SUBSTITUSI PART");
-        rootLayout.addView(substitusi, params());
+        Button katalog =
+                tombol("📚 KATALOG PART MOTOR");
 
-        Button tersimpan = tombol("📋 DAFTAR PART TERSIMPAN");
-        rootLayout.addView(tersimpan, params());
+        rootLayout.addView(
+                katalog,
+                params()
+        );
 
-        Button tambah = tombol("➕ TAMBAH PART");
-        rootLayout.addView(tambah, params());
+        Button substitusi =
+                tombol("🔄 SUBSTITUSI PART");
 
-        Button scan = tombol("📷 SCAN NOTA SUPPLIER");
-        rootLayout.addView(scan, params());
+        rootLayout.addView(
+                substitusi,
+                params()
+        );
 
-        Button keluar = tombol("🚪 KELUAR AKUN");
-        rootLayout.addView(keluar, params());
+        Button tersimpan =
+                tombol("📋 DAFTAR PART TERSIMPAN");
+
+        rootLayout.addView(
+                tersimpan,
+                params()
+        );
+
+        Button tambah =
+                tombol("➕ TAMBAH PART");
+
+        rootLayout.addView(
+                tambah,
+                params()
+        );
+
+        Button scan =
+                tombol("📷 SCAN NOTA SUPPLIER");
+
+        rootLayout.addView(
+                scan,
+                params()
+        );
+
+        Button keluar =
+                tombol("🚪 KELUAR AKUN");
+
+        rootLayout.addView(
+                keluar,
+                params()
+        );
 
         setContentView(rootLayout);
 
-        cari.setOnClickListener(v -> tampilkanCariPart());
-        katalog.setOnClickListener(v -> tampilkanKatalogPart());
-        substitusi.setOnClickListener(v -> tampilkanSubstitusiPart());
-        tersimpan.setOnClickListener(v -> tampilkanDaftarPart());
-        tambah.setOnClickListener(v -> tampilkanFormTambahPart());
-        scan.setOnClickListener(v -> scanNotaSupplier());
+        cari.setOnClickListener(
+                v -> tampilkanCariPart()
+        );
+
+        katalog.setOnClickListener(
+                v -> tampilkanKatalogPart()
+        );
+
+        substitusi.setOnClickListener(
+                v -> tampilkanSubstitusiPart()
+        );
+
+        tersimpan.setOnClickListener(
+                v -> tampilkanDaftarPart()
+        );
+
+        tambah.setOnClickListener(
+                v -> tampilkanFormTambahPart()
+        );
+
+        scan.setOnClickListener(
+                v -> scanNotaSupplier()
+        );
 
         keluar.setOnClickListener(v -> {
+
             new AlertDialog.Builder(this)
-                    .setTitle("Keluar Akun")
-                    .setMessage("Yakin ingin keluar dari akun?")
-                    .setNegativeButton("BATAL", null)
-                    .setPositiveButton("KELUAR", (d, w) -> {
-                        auth.signOut();
-                        tampilkanLogin();
-                    })
+
+                    .setTitle(
+                            "Keluar Akun"
+                    )
+
+                    .setMessage(
+                            "Yakin ingin keluar dari akun?"
+                    )
+
+                    .setNegativeButton(
+                            "BATAL",
+                            null
+                    )
+
+                    .setPositiveButton(
+                            "KELUAR",
+                            (d, w) -> {
+
+                                auth.signOut();
+
+                                tampilkanLogin();
+                            }
+                    )
+
                     .show();
         });
     }
@@ -262,166 +478,353 @@ public class MainActivity extends AppCompatActivity {
 
     private void tampilkanFormTambahPart() {
 
-        LinearLayout layout = formLayout();
+        LinearLayout layout =
+                formLayout();
 
-        TextView title = buatJudul("➕ TAMBAH PART");
+        TextView title =
+                buatJudul(
+                        "➕ TAMBAH PART"
+                );
+
         layout.addView(title);
 
-        namaPartInput = input("Nama part *");
-        layout.addView(namaPartInput, params());
+        namaPartInput =
+                input("Nama part *");
 
-        hargaPokokInput = input("Harga pokok / modal *");
-        hargaPokokInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-        layout.addView(hargaPokokInput, params());
+        layout.addView(
+                namaPartInput,
+                params()
+        );
 
-        kodePartInput = input("Kode part");
-        layout.addView(kodePartInput, params());
+        hargaPokokInput =
+                input(
+                        "Harga pokok / modal *"
+                );
 
-        stokInput = input("Stok");
-        stokInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-        layout.addView(stokInput, params());
+        hargaPokokInput.setInputType(
+                InputType.TYPE_CLASS_NUMBER
+        );
 
-        supplierInput = input("Supplier");
-        layout.addView(supplierInput, params());
+        layout.addView(
+                hargaPokokInput,
+                params()
+        );
 
-        catatanInput = input("Catatan");
+        kodePartInput =
+                input("Kode part");
+
+        layout.addView(
+                kodePartInput,
+                params()
+        );
+
+        stokInput =
+                input("Stok");
+
+        stokInput.setInputType(
+                InputType.TYPE_CLASS_NUMBER
+        );
+
+        layout.addView(
+                stokInput,
+                params()
+        );
+
+        supplierInput =
+                input("Supplier");
+
+        layout.addView(
+                supplierInput,
+                params()
+        );
+
+        catatanInput =
+                input("Catatan");
+
         catatanInput.setMinLines(3);
-        catatanInput.setGravity(Gravity.TOP);
-        layout.addView(catatanInput, params());
 
-        hasilHargaText = new TextView(this);
+        catatanInput.setGravity(
+                Gravity.TOP
+        );
+
+        layout.addView(
+                catatanInput,
+                params()
+        );
+
+        hasilHargaText =
+                new TextView(this);
+
         hasilHargaText.setTextSize(16);
-        hasilHargaText.setPadding(0, 15, 0, 15);
-        layout.addView(hasilHargaText);
 
-        Button hitung = tombol("💰 HITUNG HARGA JUAL");
-        layout.addView(hitung, params());
+        hasilHargaText.setPadding(
+                0,
+                15,
+                0,
+                15
+        );
 
-        Button simpan = tombol("💾 SIMPAN PART");
-        layout.addView(simpan, params());
+        layout.addView(
+                hasilHargaText
+        );
 
-        Button scan = tombol("📷 SCAN NOTA SUPPLIER");
-        layout.addView(scan, params());
+        Button hitung =
+                tombol(
+                        "💰 HITUNG HARGA JUAL"
+                );
 
-        Button kembali = tombol("⬅️ KEMBALI");
-        layout.addView(kembali, params());
+        layout.addView(
+                hitung,
+                params()
+        );
 
-        setContentView(layout);
+        Button simpan =
+                tombol(
+                        "💾 SIMPAN PART"
+                );
 
-        hitung.setOnClickListener(v -> hitungHarga());
+        layout.addView(
+                simpan,
+                params()
+        );
 
-        simpan.setOnClickListener(v -> simpanPart());
+        Button scan =
+                tombol(
+                        "📷 SCAN NOTA SUPPLIER"
+                );
 
-        scan.setOnClickListener(v -> scanNotaSupplier());
+        layout.addView(
+                scan,
+                params()
+        );
 
-        kembali.setOnClickListener(v -> tampilkanMenuUtama());
+        Button kembali =
+                tombol(
+                        "⬅️ KEMBALI"
+                );
+
+        layout.addView(
+                kembali,
+                params()
+        );
+
+        setFormContent(layout);
+
+        hitung.setOnClickListener(
+                v -> hitungHarga()
+        );
+
+        simpan.setOnClickListener(
+                v -> simpanPart()
+        );
+
+        scan.setOnClickListener(
+                v -> scanNotaSupplier()
+        );
+
+        kembali.setOnClickListener(
+                v -> tampilkanMenuUtama()
+        );
     }
 
     private void hitungHarga() {
 
-        String nama = namaPartInput.getText().toString().trim();
-        double modal = parseDouble(hargaPokokInput.getText().toString());
+        String nama =
+                namaPartInput.getText()
+                        .toString()
+                        .trim();
+
+        double modal =
+                parseDouble(
+                        hargaPokokInput
+                                .getText()
+                                .toString()
+                );
 
         if (nama.isEmpty()) {
-            toast("Nama part wajib diisi.");
+
+            toast(
+                    "Nama part wajib diisi."
+            );
+
             return;
         }
 
         if (modal <= 0) {
-            toast("Harga pokok wajib diisi.");
+
+            toast(
+                    "Harga pokok wajib diisi."
+            );
+
             return;
         }
 
-        double[] margin = hitungMargin(nama, modal);
+        double[] margin =
+                hitungMargin(
+                        nama,
+                        modal
+                );
 
-        double hargaMin = modal + (modal * margin[0] / 100.0);
-        double hargaMax = modal + (modal * margin[1] / 100.0);
+        double hargaMin =
+                modal +
+                (
+                        modal *
+                        margin[0] /
+                        100.0
+                );
+
+        double hargaMax =
+                modal +
+                (
+                        modal *
+                        margin[1] /
+                        100.0
+                );
 
         hasilHargaText.setText(
-                "Harga Pokok : " + rupiah(modal) + "\n" +
+                "Harga Pokok : " +
+                rupiah(modal) +
+                "\n" +
+
                 "Margin      : " +
-                formatAngka(margin[0]) + "% - " +
-                formatAngka(margin[1]) + "%\n" +
+                formatAngka(margin[0]) +
+                "% - " +
+                formatAngka(margin[1]) +
+                "%\n" +
+
                 "Harga Jual  : " +
-                rupiah(hargaMin) + " - " +
+                rupiah(hargaMin) +
+                " - " +
                 rupiah(hargaMax)
         );
     }
 
-    private double[] hitungMargin(String nama, double modal) {
+    private double[] hitungMargin(
+            String nama,
+            double modal) {
 
-        String n = nama.toLowerCase(Locale.ROOT);
+        String n =
+                nama.toLowerCase(
+                        Locale.ROOT
+                );
 
         if (n.contains("oli")) {
-            return new double[]{10, 10};
+
+            return new double[]{
+                    10,
+                    10
+            };
         }
 
         if (modal < 10000) {
-            return new double[]{100, 120};
+
+            return new double[]{
+                    100,
+                    120
+            };
         }
 
         if (modal < 15000) {
+
             return interpolasi(
                     modal,
-                    10000, 15000,
-                    100, 120,
-                    60, 80
+                    10000,
+                    15000,
+                    100,
+                    120,
+                    60,
+                    80
             );
         }
 
         if (modal < 25000) {
-            return new double[]{60, 80};
+
+            return new double[]{
+                    60,
+                    80
+            };
         }
 
         if (modal < 30000) {
+
             return interpolasi(
                     modal,
-                    25000, 30000,
-                    60, 80,
-                    35, 50
+                    25000,
+                    30000,
+                    60,
+                    80,
+                    35,
+                    50
             );
         }
 
         if (modal < 50000) {
-            return new double[]{35, 50};
+
+            return new double[]{
+                    35,
+                    50
+            };
         }
 
         if (modal < 60000) {
+
             return interpolasi(
                     modal,
-                    50000, 60000,
-                    35, 50,
-                    20, 30
+                    50000,
+                    60000,
+                    35,
+                    50,
+                    20,
+                    30
             );
         }
 
         if (modal < 90000) {
-            return new double[]{20, 30};
+
+            return new double[]{
+                    20,
+                    30
+            };
         }
 
         if (modal < 100000) {
+
             return interpolasi(
                     modal,
-                    90000, 100000,
-                    20, 30,
-                    10, 18
+                    90000,
+                    100000,
+                    20,
+                    30,
+                    10,
+                    18
             );
         }
 
         if (modal < 150000) {
-            return new double[]{10, 18};
+
+            return new double[]{
+                    10,
+                    18
+            };
         }
 
         if (modal < 160000) {
+
             return interpolasi(
                     modal,
-                    150000, 160000,
-                    10, 18,
-                    10, 15
+                    150000,
+                    160000,
+                    10,
+                    18,
+                    10,
+                    15
             );
         }
 
-        return new double[]{10, 15};
+        return new double[]{
+                10,
+                15
+        };
     }
 
     private double[] interpolasi(
@@ -433,87 +836,226 @@ public class MainActivity extends AppCompatActivity {
             double minAkhir,
             double maxAkhir) {
 
-        double rasio = (nilai - awal) / (akhir - awal);
+        double rasio =
+                (
+                        nilai - awal
+                ) /
+                (
+                        akhir - awal
+                );
 
-        double min = minAwal +
-                (minAkhir - minAwal) * rasio;
+        double min =
+                minAwal +
+                (
+                        minAkhir -
+                        minAwal
+                ) *
+                rasio;
 
-        double max = maxAwal +
-                (maxAkhir - maxAwal) * rasio;
+        double max =
+                maxAwal +
+                (
+                        maxAkhir -
+                        maxAwal
+                ) *
+                rasio;
 
-        return new double[]{min, max};
+        return new double[]{
+                min,
+                max
+        };
     }
+
+    // =========================================================
+    // SIMPAN PART
+    // =========================================================
 
     private void simpanPart() {
 
-        FirebaseUser user = auth.getCurrentUser();
+        FirebaseUser user =
+                auth.getCurrentUser();
 
         if (user == null) {
-            toast("Silakan login terlebih dahulu.");
+
+            toast(
+                    "Silakan login terlebih dahulu."
+            );
+
             tampilkanLogin();
+
             return;
         }
 
-        String nama = namaPartInput.getText().toString().trim();
-        double modal = parseDouble(hargaPokokInput.getText().toString());
+        String nama =
+                namaPartInput.getText()
+                        .toString()
+                        .trim();
+
+        double modal =
+                parseDouble(
+                        hargaPokokInput
+                                .getText()
+                                .toString()
+                );
 
         if (nama.isEmpty()) {
-            toast("Nama part wajib diisi.");
+
+            toast(
+                    "Nama part wajib diisi."
+            );
+
             return;
         }
 
         if (modal <= 0) {
-            toast("Harga pokok wajib diisi.");
+
+            toast(
+                    "Harga pokok wajib diisi."
+            );
+
             return;
         }
 
-        double[] margin = hitungMargin(nama, modal);
+        double[] margin =
+                hitungMargin(
+                        nama,
+                        modal
+                );
 
         double hargaMin =
-                modal + modal * margin[0] / 100.0;
+                modal +
+                modal *
+                margin[0] /
+                100.0;
 
         double hargaMax =
-                modal + modal * margin[1] / 100.0;
+                modal +
+                modal *
+                margin[1] /
+                100.0;
 
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data =
+                new HashMap<>();
 
-        data.put("namaPart", nama);
-        data.put("hargaPokok", modal);
-        data.put("marginMin", margin[0]);
-        data.put("marginMax", margin[1]);
-        data.put("hargaJualMin", hargaMin);
-        data.put("hargaJualMax", hargaMax);
-        data.put("kodePart",
-                kodePartInput.getText().toString().trim());
-        data.put("stok",
-                parseDouble(stokInput.getText().toString()));
-        data.put("supplier",
-                supplierInput.getText().toString().trim());
-        data.put("catatan",
-                catatanInput.getText().toString().trim());
-        data.put("updatedAt", FieldValue.serverTimestamp());
+        data.put(
+                "namaPart",
+                nama
+        );
+
+        data.put(
+                "hargaPokok",
+                modal
+        );
+
+        data.put(
+                "marginMin",
+                margin[0]
+        );
+
+        data.put(
+                "marginMax",
+                margin[1]
+        );
+
+        data.put(
+                "hargaJualMin",
+                hargaMin
+        );
+
+        data.put(
+                "hargaJualMax",
+                hargaMax
+        );
+
+        data.put(
+                "kodePart",
+                kodePartInput
+                        .getText()
+                        .toString()
+                        .trim()
+        );
+
+        data.put(
+                "stok",
+                parseDouble(
+                        stokInput
+                                .getText()
+                                .toString()
+                )
+        );
+
+        data.put(
+                "supplier",
+                supplierInput
+                        .getText()
+                        .toString()
+                        .trim()
+        );
+
+        data.put(
+                "catatan",
+                catatanInput
+                        .getText()
+                        .toString()
+                        .trim()
+        );
+
+        data.put(
+                "updatedAt",
+                FieldValue.serverTimestamp()
+        );
 
         db.collection("parts")
                 .add(data)
-                .addOnSuccessListener(documentReference -> {
+                .addOnSuccessListener(
+                        documentReference -> {
 
-                    toast("Part berhasil disimpan.");
+                            toast(
+                                    "Part berhasil disimpan."
+                            );
 
-                    new AlertDialog.Builder(this)
-                            .setTitle("PART TERSIMPAN")
-                            .setMessage(
-                                    "Nama: " + nama + "\n\n" +
-                                    "Harga jual:\n" +
-                                    rupiah(hargaMin) + " - " +
-                                    rupiah(hargaMax)
-                            )
-                            .setPositiveButton("OK", null)
-                            .show();
+                            new AlertDialog.Builder(this)
 
-                    tampilkanMenuUtama();
-                })
-                .addOnFailureListener(e ->
-                        toast("Gagal menyimpan: " + e.getMessage()));
+                                    .setTitle(
+                                            "PART TERSIMPAN"
+                                    )
+
+                                    .setMessage(
+                                            "Nama: " +
+                                            nama +
+                                            "\n\n" +
+
+                                            "Harga jual:\n" +
+
+                                            rupiah(
+                                                    hargaMin
+                                            ) +
+
+                                            " - " +
+
+                                            rupiah(
+                                                    hargaMax
+                                            )
+                                    )
+
+                                    .setPositiveButton(
+                                            "OK",
+                                            null
+                                    )
+
+                                    .show();
+
+                            tampilkanMenuUtama();
+                        }
+                )
+
+                .addOnFailureListener(
+                        e ->
+                                toast(
+                                        "Gagal menyimpan: " +
+                                        e.getMessage()
+                                )
+                );
     }
 
     // =========================================================
@@ -522,170 +1064,294 @@ public class MainActivity extends AppCompatActivity {
 
     private void tampilkanCariPart() {
 
-        LinearLayout layout = formLayout();
+        LinearLayout layout =
+                formLayout();
 
-        TextView title = buatJudul("🔎 CARI PART");
+        TextView title =
+                buatJudul(
+                        "🔎 CARI PART"
+                );
+
         layout.addView(title);
 
-        EditText pencarian = input(
-                "Nama / kode part / supplier"
-        );
-        layout.addView(pencarian, params());
+        EditText pencarian =
+                input(
+                        "Nama / kode part / supplier"
+                );
 
-        Button cari = tombol("🔎 CARI");
-        layout.addView(cari, params());
-
-        hasilPencarianText = new TextView(this);
-        hasilPencarianText.setTextSize(15);
-        hasilPencarianText.setPadding(0, 20, 0, 20);
-        layout.addView(hasilPencarianText);
-
-        Button kembali = tombol("⬅️ KEMBALI");
-        layout.addView(kembali, params());
-
-        setContentView(layout);
-
-        cari.setOnClickListener(v ->
-                cariPartFirestore(
-                        pencarian.getText().toString().trim()
-                )
+        layout.addView(
+                pencarian,
+                params()
         );
 
-        kembali.setOnClickListener(v ->
-                tampilkanMenuUtama()
+        Button cari =
+                tombol("🔎 CARI");
+
+        layout.addView(
+                cari,
+                params()
         );
 
-        pencarian.setOnEditorActionListener((v, actionId, event) -> {
-            cariPartFirestore(
-                    pencarian.getText().toString().trim()
-            );
-            return true;
-        });
+        hasilPencarianText =
+                new TextView(this);
+
+        hasilPencarianText.setTextSize(
+                15
+        );
+
+        hasilPencarianText.setPadding(
+                0,
+                20,
+                0,
+                20
+        );
+
+        layout.addView(
+                hasilPencarianText
+        );
+
+        Button kembali =
+                tombol("⬅️ KEMBALI");
+
+        layout.addView(
+                kembali,
+                params()
+        );
+
+        setFormContent(layout);
+
+        cari.setOnClickListener(
+                v ->
+                        cariPartFirestore(
+                                pencarian
+                                        .getText()
+                                        .toString()
+                                        .trim()
+                        )
+        );
+
+        kembali.setOnClickListener(
+                v -> tampilkanMenuUtama()
+        );
+
+        pencarian.setOnEditorActionListener(
+                (v, actionId, event) -> {
+
+                    cariPartFirestore(
+                            pencarian
+                                    .getText()
+                                    .toString()
+                                    .trim()
+                    );
+
+                    return true;
+                }
+        );
     }
 
-    private void cariPartFirestore(String kata) {
+    private void cariPartFirestore(
+            String kata) {
 
         db.collection("parts")
                 .get()
-                .addOnSuccessListener(snapshot -> {
+                .addOnSuccessListener(
+                        snapshot -> {
 
-                    StringBuilder hasil = new StringBuilder();
+                            StringBuilder hasil =
+                                    new StringBuilder();
 
-                    int jumlah = 0;
+                            int jumlah = 0;
 
-                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                            for (
+                                    DocumentSnapshot doc :
+                                    snapshot.getDocuments()
+                            ) {
 
-                        String nama = stringValue(
-                                doc.get("namaPart")
-                        );
+                                String nama =
+                                        stringValue(
+                                                doc.get(
+                                                        "namaPart"
+                                                )
+                                        );
 
-                        String kode = stringValue(
-                                doc.get("kodePart")
-                        );
+                                String kode =
+                                        stringValue(
+                                                doc.get(
+                                                        "kodePart"
+                                                )
+                                        );
 
-                        String supplier = stringValue(
-                                doc.get("supplier")
-                        );
+                                String supplier =
+                                        stringValue(
+                                                doc.get(
+                                                        "supplier"
+                                                )
+                                        );
 
-                        String cari = kata.toLowerCase(
-                                Locale.ROOT
-                        );
+                                String cari =
+                                        kata.toLowerCase(
+                                                Locale.ROOT
+                                        );
 
-                        boolean cocok = kata.isEmpty()
-                                || nama.toLowerCase(Locale.ROOT)
-                                .contains(cari)
-                                || kode.toLowerCase(Locale.ROOT)
-                                .contains(cari)
-                                || supplier.toLowerCase(Locale.ROOT)
-                                .contains(cari);
+                                boolean cocok =
+                                        kata.isEmpty()
 
-                        if (!cocok) {
-                            continue;
-                        }
+                                        ||
 
-                        jumlah++;
+                                        nama.toLowerCase(
+                                                Locale.ROOT
+                                        ).contains(cari)
 
-                        double modal = numberValue(
-                                doc.get("hargaPokok")
-                        );
+                                        ||
 
-                        double hargaMin = numberValue(
-                                doc.get("hargaJualMin")
-                        );
+                                        kode.toLowerCase(
+                                                Locale.ROOT
+                                        ).contains(cari)
 
-                        double hargaMax = numberValue(
-                                doc.get("hargaJualMax")
-                        );
+                                        ||
 
-                        double stok = numberValue(
-                                doc.get("stok")
-                        );
+                                        supplier.toLowerCase(
+                                                Locale.ROOT
+                                        ).contains(cari);
 
-                        hasil.append(
-                                "━━━━━━━━━━━━━━━━━━\n"
-                        );
+                                if (!cocok) {
+                                    continue;
+                                }
 
-                        hasil.append("🔧 ")
-                                .append(nama)
-                                .append("\n");
+                                jumlah++;
 
-                        if (!kode.isEmpty()) {
-                            hasil.append("Kode: ")
-                                    .append(kode)
-                                    .append("\n");
-                        }
+                                double modal =
+                                        numberValue(
+                                                doc.get(
+                                                        "hargaPokok"
+                                                )
+                                        );
 
-                        if (!supplier.isEmpty()) {
-                            hasil.append("Supplier: ")
-                                    .append(supplier)
-                                    .append("\n");
-                        }
+                                double hargaMin =
+                                        numberValue(
+                                                doc.get(
+                                                        "hargaJualMin"
+                                                )
+                                        );
 
-                        hasil.append("Modal: ")
-                                .append(rupiah(modal))
-                                .append("\n");
+                                double hargaMax =
+                                        numberValue(
+                                                doc.get(
+                                                        "hargaJualMax"
+                                                )
+                                        );
 
-                        hasil.append("Jual: ")
-                                .append(rupiah(hargaMin))
-                                .append(" - ")
-                                .append(rupiah(hargaMax))
-                                .append("\n");
+                                double stok =
+                                        numberValue(
+                                                doc.get(
+                                                        "stok"
+                                                )
+                                        );
 
-                        hasil.append("Stok: ")
-                                .append(formatAngka(stok))
-                                .append("\n");
+                                hasil.append(
+                                        "━━━━━━━━━━━━━━━━━━\n"
+                                );
 
-                        String catatan = stringValue(
-                                doc.get("catatan")
-                        );
+                                hasil.append(
+                                        "🔧 "
+                                )
+                                        .append(nama)
+                                        .append("\n");
 
-                        if (!catatan.isEmpty()) {
-                            hasil.append("Catatan: ")
-                                    .append(catatan)
-                                    .append("\n");
-                        }
-                    }
+                                if (!kode.isEmpty()) {
 
-                    if (jumlah == 0) {
-                        hasil.append(
-                                "Part tidak ditemukan."
-                        );
-                    } else {
-                        hasil.insert(
-                                0,
-                                "Ditemukan " +
+                                    hasil.append(
+                                            "Kode: "
+                                    )
+                                            .append(kode)
+                                            .append("\n");
+                                }
+
+                                if (!supplier.isEmpty()) {
+
+                                    hasil.append(
+                                            "Supplier: "
+                                    )
+                                            .append(supplier)
+                                            .append("\n");
+                                }
+
+                                hasil.append(
+                                        "Modal: "
+                                )
+                                        .append(
+                                                rupiah(modal)
+                                        )
+                                        .append("\n");
+
+                                hasil.append(
+                                        "Jual: "
+                                )
+                                        .append(
+                                                rupiah(hargaMin)
+                                        )
+                                        .append(" - ")
+                                        .append(
+                                                rupiah(hargaMax)
+                                        )
+                                        .append("\n");
+
+                                hasil.append(
+                                        "Stok: "
+                                )
+                                        .append(
+                                                formatAngka(stok)
+                                        )
+                                        .append("\n");
+
+                                String catatan =
+                                        stringValue(
+                                                doc.get(
+                                                        "catatan"
+                                                )
+                                        );
+
+                                if (!catatan.isEmpty()) {
+
+                                    hasil.append(
+                                            "Catatan: "
+                                    )
+                                            .append(
+                                                    catatan
+                                            )
+                                            .append("\n");
+                                }
+                            }
+
+                            if (jumlah == 0) {
+
+                                hasil.append(
+                                        "Part tidak ditemukan."
+                                );
+
+                            } else {
+
+                                hasil.insert(
+                                        0,
+                                        "Ditemukan " +
                                         jumlah +
                                         " part.\n"
-                        );
-                    }
+                                );
+                            }
 
-                    hasilPencarianText.setText(
-                            hasil.toString()
-                    );
-                })
-                .addOnFailureListener(e ->
-                        toast("Gagal mencari: " +
-                                e.getMessage()));
+                            hasilPencarianText.setText(
+                                    hasil.toString()
+                            );
+                        }
+                )
+
+                .addOnFailureListener(
+                        e ->
+                                toast(
+                                        "Gagal mencari: " +
+                                        e.getMessage()
+                                )
+                );
     }
 
     // =========================================================
@@ -696,60 +1362,90 @@ public class MainActivity extends AppCompatActivity {
 
         db.collection("parts")
                 .get()
-                .addOnSuccessListener(snapshot -> {
+                .addOnSuccessListener(
+                        snapshot -> {
 
-                    LinearLayout layout = formLayout();
+                            LinearLayout layout =
+                                    formLayout();
 
-                    TextView title =
-                            buatJudul("📋 DAFTAR PART TERSIMPAN");
-
-                    layout.addView(title);
-
-                    if (snapshot.isEmpty()) {
-
-                        TextView kosong =
-                                new TextView(this);
-
-                        kosong.setText(
-                                "Belum ada part tersimpan."
-                        );
-
-                        kosong.setTextSize(16);
-                        kosong.setPadding(0, 20, 0, 20);
-
-                        layout.addView(kosong);
-
-                    } else {
-
-                        for (DocumentSnapshot doc :
-                                snapshot.getDocuments()) {
+                            TextView title =
+                                    buatJudul(
+                                            "📋 DAFTAR PART TERSIMPAN"
+                                    );
 
                             layout.addView(
-                                    buatCardPart(doc)
+                                    title
+                            );
+
+                            if (snapshot.isEmpty()) {
+
+                                TextView kosong =
+                                        new TextView(
+                                                this
+                                        );
+
+                                kosong.setText(
+                                        "Belum ada part tersimpan."
+                                );
+
+                                kosong.setTextSize(
+                                        16
+                                );
+
+                                kosong.setPadding(
+                                        0,
+                                        20,
+                                        0,
+                                        20
+                                );
+
+                                layout.addView(
+                                        kosong
+                                );
+
+                            } else {
+
+                                for (
+                                        DocumentSnapshot doc :
+                                        snapshot.getDocuments()
+                                ) {
+
+                                    layout.addView(
+                                            buatCardPart(doc)
+                                    );
+                                }
+                            }
+
+                            Button kembali =
+                                    tombol(
+                                            "⬅️ KEMBALI"
+                                    );
+
+                            layout.addView(
+                                    kembali,
+                                    params()
+                            );
+
+                            setFormContent(layout);
+
+                            kembali.setOnClickListener(
+                                    v ->
+                                            tampilkanMenuUtama()
                             );
                         }
-                    }
+                )
 
-                    Button kembali =
-                            tombol("⬅️ KEMBALI");
-
-                    layout.addView(
-                            kembali,
-                            params()
-                    );
-
-                    setContentView(layout);
-
-                    kembali.setOnClickListener(
-                            v -> tampilkanMenuUtama()
-                    );
-                })
-                .addOnFailureListener(e ->
-                        toast("Gagal mengambil data: " +
-                                e.getMessage()));
+                .addOnFailureListener(
+                        e ->
+                                toast(
+                                        "Gagal mengambil data: " +
+                                        e.getMessage()
+                                )
+                );
     }
 
-    private View buatCardPart(DocumentSnapshot doc) {
+    private View buatCardPart(
+            DocumentSnapshot doc) {
 
         LinearLayout card =
                 new LinearLayout(this);
@@ -759,32 +1455,51 @@ public class MainActivity extends AppCompatActivity {
         );
 
         card.setPadding(
-                20, 20, 20, 20
+                20,
+                20,
+                20,
+                20
         );
 
         String nama =
-                stringValue(doc.get("namaPart"));
+                stringValue(
+                        doc.get("namaPart")
+                );
 
         String kode =
-                stringValue(doc.get("kodePart"));
+                stringValue(
+                        doc.get("kodePart")
+                );
 
         double modal =
-                numberValue(doc.get("hargaPokok"));
+                numberValue(
+                        doc.get("hargaPokok")
+                );
 
         double min =
-                numberValue(doc.get("hargaJualMin"));
+                numberValue(
+                        doc.get("hargaJualMin")
+                );
 
         double max =
-                numberValue(doc.get("hargaJualMax"));
+                numberValue(
+                        doc.get("hargaJualMax")
+                );
 
         double stok =
-                numberValue(doc.get("stok"));
+                numberValue(
+                        doc.get("stok")
+                );
 
         String supplier =
-                stringValue(doc.get("supplier"));
+                stringValue(
+                        doc.get("supplier")
+                );
 
         String catatan =
-                stringValue(doc.get("catatan"));
+                stringValue(
+                        doc.get("catatan")
+                );
 
         TextView text =
                 new TextView(this);
@@ -792,48 +1507,80 @@ public class MainActivity extends AppCompatActivity {
         StringBuilder s =
                 new StringBuilder();
 
-        s.append("🔧 ")
+        s.append(
+                "🔧 "
+        )
                 .append(nama)
                 .append("\n");
 
         if (!kode.isEmpty()) {
-            s.append("Kode: ")
+
+            s.append(
+                    "Kode: "
+            )
                     .append(kode)
                     .append("\n");
         }
 
-        s.append("Modal: ")
-                .append(rupiah(modal))
+        s.append(
+                "Modal: "
+        )
+                .append(
+                        rupiah(modal)
+                )
                 .append("\n");
 
-        s.append("Harga jual: ")
-                .append(rupiah(min))
+        s.append(
+                "Harga jual: "
+        )
+                .append(
+                        rupiah(min)
+                )
                 .append(" - ")
-                .append(rupiah(max))
+                .append(
+                        rupiah(max)
+                )
                 .append("\n");
 
-        s.append("Stok: ")
-                .append(formatAngka(stok))
+        s.append(
+                "Stok: "
+        )
+                .append(
+                        formatAngka(stok)
+                )
                 .append("\n");
 
         if (!supplier.isEmpty()) {
-            s.append("Supplier: ")
+
+            s.append(
+                    "Supplier: "
+            )
                     .append(supplier)
                     .append("\n");
         }
 
         if (!catatan.isEmpty()) {
-            s.append("Catatan: ")
+
+            s.append(
+                    "Catatan: "
+            )
                     .append(catatan);
         }
 
-        text.setText(s.toString());
-        text.setTextSize(15);
+        text.setText(
+                s.toString()
+        );
+
+        text.setTextSize(
+                15
+        );
 
         card.addView(text);
 
         Button hapus =
-                tombol("🗑️ HAPUS");
+                tombol(
+                        "🗑️ HAPUS"
+                );
 
         card.addView(
                 hapus,
@@ -843,28 +1590,40 @@ public class MainActivity extends AppCompatActivity {
         hapus.setOnClickListener(v -> {
 
             new AlertDialog.Builder(this)
-                    .setTitle("Hapus Part")
-                    .setMessage(
-                            "Hapus " + nama + "?"
+
+                    .setTitle(
+                            "Hapus Part"
                     )
+
+                    .setMessage(
+                            "Hapus " +
+                            nama +
+                            "?"
+                    )
+
                     .setNegativeButton(
                             "BATAL",
                             null
                     )
+
                     .setPositiveButton(
                             "HAPUS",
                             (dialog, which) ->
+
                                     doc.getReference()
                                             .delete()
                                             .addOnSuccessListener(
                                                     x -> {
+
                                                         toast(
                                                                 "Part dihapus."
                                                         );
+
                                                         tampilkanDaftarPart();
                                                     }
                                             )
                     )
+
                     .show();
         });
 
@@ -877,10 +1636,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void tampilkanKatalogPart() {
 
-        LinearLayout layout = formLayout();
+        LinearLayout layout =
+                formLayout();
 
         TextView title =
-                buatJudul("📚 KATALOG PART MOTOR");
+                buatJudul(
+                        "📚 KATALOG PART MOTOR"
+                );
 
         layout.addView(title);
 
@@ -895,7 +1657,9 @@ public class MainActivity extends AppCompatActivity {
         );
 
         Button tombolCari =
-                tombol("🔎 CARI KATALOG");
+                tombol(
+                        "🔎 CARI KATALOG"
+                );
 
         layout.addView(
                 tombolCari,
@@ -903,7 +1667,9 @@ public class MainActivity extends AppCompatActivity {
         );
 
         Button tambah =
-                tombol("➕ TAMBAH KATALOG");
+                tombol(
+                        "➕ TAMBAH KATALOG"
+                );
 
         layout.addView(
                 tambah,
@@ -913,41 +1679,56 @@ public class MainActivity extends AppCompatActivity {
         TextView hasil =
                 new TextView(this);
 
-        hasil.setTextSize(14);
-        hasil.setPadding(
-                0, 20, 0, 20
+        hasil.setTextSize(
+                14
         );
 
-        layout.addView(hasil);
+        hasil.setPadding(
+                0,
+                20,
+                0,
+                20
+        );
+
+        layout.addView(
+                hasil
+        );
 
         Button kembali =
-                tombol("⬅️ KEMBALI");
+                tombol(
+                        "⬅️ KEMBALI"
+                );
 
         layout.addView(
                 kembali,
                 params()
         );
 
-        setContentView(layout);
-
-        Runnable cariData = () ->
-                cariKatalog(
-                        cari.getText().toString().trim(),
-                        hasil
-                );
+        setFormContent(layout);
 
         tombolCari.setOnClickListener(
-                v -> cariData.run()
+                v ->
+                        cariKatalog(
+                                cari.getText()
+                                        .toString()
+                                        .trim(),
+                                hasil
+                        )
         );
 
-        cariData.run();
+        cariKatalog(
+                "",
+                hasil
+        );
 
         tambah.setOnClickListener(
-                v -> tampilkanFormKatalogPart()
+                v ->
+                        tampilkanFormKatalogPart()
         );
 
         kembali.setOnClickListener(
-                v -> tampilkanMenuUtama()
+                v ->
+                        tampilkanMenuUtama()
         );
     }
 
@@ -956,197 +1737,307 @@ public class MainActivity extends AppCompatActivity {
             TextView hasil) {
 
         db.collection("partCatalog")
-                .whereEqualTo("aktif", true)
+                .whereEqualTo(
+                        "aktif",
+                        true
+                )
                 .get()
-                .addOnSuccessListener(snapshot -> {
+                .addOnSuccessListener(
+                        snapshot -> {
 
-                    StringBuilder s =
-                            new StringBuilder();
+                            StringBuilder s =
+                                    new StringBuilder();
 
-                    int jumlah = 0;
+                            int jumlah = 0;
 
-                    String cari =
-                            kata.toLowerCase(
-                                    Locale.ROOT
-                            );
+                            String cari =
+                                    kata.toLowerCase(
+                                            Locale.ROOT
+                                    );
 
-                    for (DocumentSnapshot doc :
-                            snapshot.getDocuments()) {
+                            for (
+                                    DocumentSnapshot doc :
+                                    snapshot.getDocuments()
+                            ) {
 
-                        String merk =
-                                stringValue(
-                                        doc.get("merk")
+                                String merk =
+                                        stringValue(
+                                                doc.get(
+                                                        "merk"
+                                                )
+                                        );
+
+                                String model =
+                                        stringValue(
+                                                doc.get(
+                                                        "model"
+                                                )
+                                        );
+
+                                String kategori =
+                                        stringValue(
+                                                doc.get(
+                                                        "kategoriPart"
+                                                )
+                                        );
+
+                                String nama =
+                                        stringValue(
+                                                doc.get(
+                                                        "namaPart"
+                                                )
+                                        );
+
+                                String oem =
+                                        stringValue(
+                                                doc.get(
+                                                        "kodeOEM"
+                                                )
+                                        );
+
+                                String aftermarket =
+                                        stringValue(
+                                                doc.get(
+                                                        "kodeAftermarket"
+                                                )
+                                        );
+
+                                boolean cocok =
+                                        kata.isEmpty()
+
+                                        ||
+
+                                        mengandung(
+                                                merk,
+                                                cari
+                                        )
+
+                                        ||
+
+                                        mengandung(
+                                                model,
+                                                cari
+                                        )
+
+                                        ||
+
+                                        mengandung(
+                                                kategori,
+                                                cari
+                                        )
+
+                                        ||
+
+                                        mengandung(
+                                                nama,
+                                                cari
+                                        )
+
+                                        ||
+
+                                        mengandung(
+                                                oem,
+                                                cari
+                                        )
+
+                                        ||
+
+                                        mengandung(
+                                                aftermarket,
+                                                cari
+                                        );
+
+                                if (!cocok) {
+                                    continue;
+                                }
+
+                                jumlah++;
+
+                                s.append(
+                                        "━━━━━━━━━━━━━━━━━━\n"
                                 );
 
-                        String model =
-                                stringValue(
-                                        doc.get("model")
+                                s.append(
+                                        "🏍️ "
+                                )
+                                        .append(merk)
+                                        .append(" ")
+                                        .append(model)
+                                        .append("\n");
+
+                                s.append(
+                                        "🔧 "
+                                )
+                                        .append(nama)
+                                        .append("\n");
+
+                                if (!kategori.isEmpty()) {
+
+                                    s.append(
+                                            "Kategori: "
+                                    )
+                                            .append(
+                                                    kategori
+                                            )
+                                            .append("\n");
+                                }
+
+                                int tahunMulai =
+                                        intValue(
+                                                doc.get(
+                                                        "tahunMulai"
+                                                )
+                                        );
+
+                                int tahunSampai =
+                                        intValue(
+                                                doc.get(
+                                                        "tahunSampai"
+                                                )
+                                        );
+
+                                if (
+                                        tahunMulai > 0 ||
+                                        tahunSampai > 0
+                                ) {
+
+                                    s.append(
+                                            "Tahun: "
+                                    )
+                                            .append(
+                                                    tahunMulai
+                                            )
+                                            .append(
+                                                    " - "
+                                            )
+                                            .append(
+                                                    tahunSampai
+                                            )
+                                            .append("\n");
+                                }
+
+                                if (!oem.isEmpty()) {
+
+                                    s.append(
+                                            "OEM: "
+                                    )
+                                            .append(oem)
+                                            .append("\n");
+                                }
+
+                                if (
+                                        !aftermarket.isEmpty()
+                                ) {
+
+                                    s.append(
+                                            "Aftermarket: "
+                                    )
+                                            .append(
+                                                    aftermarket
+                                            )
+                                            .append("\n");
+                                }
+
+                                String ukuran =
+                                        stringValue(
+                                                doc.get(
+                                                        "ukuran"
+                                                )
+                                        );
+
+                                if (!ukuran.isEmpty()) {
+
+                                    s.append(
+                                            "Ukuran: "
+                                    )
+                                            .append(
+                                                    ukuran
+                                            )
+                                            .append("\n");
+
+                                } else {
+
+                                    s.append(
+                                            "Ukuran: "
+                                    );
+
+                                    s.append(
+                                            ukuranText(doc)
+                                    );
+
+                                    s.append("\n");
+                                }
+
+                                String satuan =
+                                        stringValue(
+                                                doc.get(
+                                                        "satuan"
+                                                )
+                                        );
+
+                                if (!satuan.isEmpty()) {
+
+                                    s.append(
+                                            "Satuan: "
+                                    )
+                                            .append(
+                                                    satuan
+                                            )
+                                            .append("\n");
+                                }
+
+                                String catatan =
+                                        stringValue(
+                                                doc.get(
+                                                        "catatan"
+                                                )
+                                        );
+
+                                if (!catatan.isEmpty()) {
+
+                                    s.append(
+                                            "Catatan: "
+                                    )
+                                            .append(
+                                                    catatan
+                                            )
+                                            .append("\n");
+                                }
+                            }
+
+                            if (jumlah == 0) {
+
+                                s.append(
+                                        "Katalog tidak ditemukan."
                                 );
 
-                        String kategori =
-                                stringValue(
-                                        doc.get("kategoriPart")
-                                );
+                            } else {
 
-                        String nama =
-                                stringValue(
-                                        doc.get("namaPart")
-                                );
-
-                        String oem =
-                                stringValue(
-                                        doc.get("kodeOEM")
-                                );
-
-                        String aftermarket =
-                                stringValue(
-                                        doc.get("kodeAftermarket")
-                                );
-
-                        boolean cocok =
-                                kata.isEmpty()
-                                        || mengandung(
-                                        merk, cari)
-                                        || mengandung(
-                                        model, cari)
-                                        || mengandung(
-                                        kategori, cari)
-                                        || mengandung(
-                                        nama, cari)
-                                        || mengandung(
-                                        oem, cari)
-                                        || mengandung(
-                                        aftermarket, cari);
-
-                        if (!cocok) {
-                            continue;
-                        }
-
-                        jumlah++;
-
-                        s.append(
-                                "━━━━━━━━━━━━━━━━━━\n"
-                        );
-
-                        s.append("🏍️ ")
-                                .append(merk)
-                                .append(" ")
-                                .append(model)
-                                .append("\n");
-
-                        s.append("🔧 ")
-                                .append(nama)
-                                .append("\n");
-
-                        if (!kategori.isEmpty()) {
-                            s.append("Kategori: ")
-                                    .append(kategori)
-                                    .append("\n");
-                        }
-
-                        int tahunMulai =
-                                intValue(
-                                        doc.get("tahunMulai")
-                                );
-
-                        int tahunSampai =
-                                intValue(
-                                        doc.get("tahunSampai")
-                                );
-
-                        if (tahunMulai > 0 ||
-                                tahunSampai > 0) {
-
-                            s.append("Tahun: ")
-                                    .append(tahunMulai)
-                                    .append(" - ")
-                                    .append(tahunSampai)
-                                    .append("\n");
-                        }
-
-                        if (!oem.isEmpty()) {
-                            s.append("OEM: ")
-                                    .append(oem)
-                                    .append("\n");
-                        }
-
-                        if (!aftermarket.isEmpty()) {
-                            s.append("Aftermarket: ")
-                                    .append(aftermarket)
-                                    .append("\n");
-                        }
-
-                        String ukuran =
-                                stringValue(
-                                        doc.get("ukuran")
-                                );
-
-                        if (!ukuran.isEmpty()) {
-                            s.append("Ukuran: ")
-                                    .append(ukuran)
-                                    .append("\n");
-                        } else {
-
-                            s.append(
-                                    "Ukuran: "
-                            );
-
-                            s.append(
-                                    ukuranText(doc)
-                            );
-
-                            s.append("\n");
-                        }
-
-                        String satuan =
-                                stringValue(
-                                        doc.get("satuan")
-                                );
-
-                        if (!satuan.isEmpty()) {
-                            s.append("Satuan: ")
-                                    .append(satuan)
-                                    .append("\n");
-                        }
-
-                        String catatan =
-                                stringValue(
-                                        doc.get("catatan")
-                                );
-
-                        if (!catatan.isEmpty()) {
-                            s.append("Catatan: ")
-                                    .append(catatan)
-                                    .append("\n");
-                        }
-                    }
-
-                    if (jumlah == 0) {
-                        s.append(
-                                "Katalog tidak ditemukan."
-                        );
-                    } else {
-                        s.insert(
-                                0,
-                                "Ditemukan " +
+                                s.insert(
+                                        0,
+                                        "Ditemukan " +
                                         jumlah +
                                         " katalog.\n"
-                        );
-                    }
+                                );
+                            }
 
-                    hasil.setText(
-                            s.toString()
-                    );
-                })
-                .addOnFailureListener(e ->
-                        hasil.setText(
-                                "Gagal mengambil katalog:\n" +
+                            hasil.setText(
+                                    s.toString()
+                            );
+                        }
+                )
+
+                .addOnFailureListener(
+                        e ->
+                                hasil.setText(
+                                        "Gagal mengambil katalog:\n" +
                                         e.getMessage()
-                        ));
+                                )
+                );
     }
 
     // =========================================================
-    // FORM TAMBAH KATALOG
+    // FORM KATALOG
     // =========================================================
 
     private void tampilkanFormKatalogPart() {
@@ -1204,20 +2095,27 @@ public class MainActivity extends AppCompatActivity {
                 input("Tebal (mm)");
 
         EditText ukuran =
-                input("Ukuran lengkap, contoh 12 x 32 x 10");
+                input(
+                        "Ukuran lengkap, contoh 12 x 32 x 10"
+                );
 
         EditText catatan =
                 input("Catatan");
 
         catatan.setMinLines(3);
-        catatan.setGravity(Gravity.TOP);
 
-        layout.addView(
-                merk, params()
+        catatan.setGravity(
+                Gravity.TOP
         );
 
         layout.addView(
-                model, params()
+                merk,
+                params()
+        );
+
+        layout.addView(
+                model,
+                params()
         );
 
         tahunMulai.setInputType(
@@ -1229,69 +2127,99 @@ public class MainActivity extends AppCompatActivity {
         );
 
         layout.addView(
-                tahunMulai, params()
+                tahunMulai,
+                params()
         );
 
         layout.addView(
-                tahunSampai, params()
+                tahunSampai,
+                params()
         );
 
         layout.addView(
-                kategori, params()
+                kategori,
+                params()
         );
 
         layout.addView(
-                nama, params()
+                nama,
+                params()
         );
 
         layout.addView(
-                kodeOEM, params()
+                kodeOEM,
+                params()
         );
 
         layout.addView(
-                kodeAftermarket, params()
+                kodeAftermarket,
+                params()
         );
 
         layout.addView(
-                satuan, params()
+                satuan,
+                params()
         );
 
-        setNumeric(diameterDalam);
-        setNumeric(diameterLuar);
-        setNumeric(panjang);
-        setNumeric(lebar);
-        setNumeric(tebal);
-
-        layout.addView(
-                diameterDalam, params()
+        setNumeric(
+                diameterDalam
         );
 
-        layout.addView(
-                diameterLuar, params()
+        setNumeric(
+                diameterLuar
         );
 
-        layout.addView(
-                panjang, params()
+        setNumeric(
+                panjang
         );
 
-        layout.addView(
-                lebar, params()
+        setNumeric(
+                lebar
         );
 
-        layout.addView(
-                tebal, params()
+        setNumeric(
+                tebal
         );
 
         layout.addView(
-                ukuran, params()
+                diameterDalam,
+                params()
         );
 
         layout.addView(
-                catatan, params()
+                diameterLuar,
+                params()
+        );
+
+        layout.addView(
+                panjang,
+                params()
+        );
+
+        layout.addView(
+                lebar,
+                params()
+        );
+
+        layout.addView(
+                tebal,
+                params()
+        );
+
+        layout.addView(
+                ukuran,
+                params()
+        );
+
+        layout.addView(
+                catatan,
+                params()
         );
 
         Button simpan =
-                tombol("💾 SIMPAN KATALOG");
+                tombol(
+                        "💾 SIMPAN KATALOG"
+                );
 
         layout.addView(
                 simpan,
@@ -1299,21 +2227,30 @@ public class MainActivity extends AppCompatActivity {
         );
 
         Button kembali =
-                tombol("⬅️ KEMBALI");
+                tombol(
+                        "⬅️ KEMBALI"
+                );
 
         layout.addView(
                 kembali,
                 params()
         );
 
-        setContentView(layout);
+        setFormContent(layout);
 
         simpan.setOnClickListener(v -> {
 
-            if (nama.getText().toString()
-                    .trim().isEmpty()) {
+            if (
+                    nama.getText()
+                            .toString()
+                            .trim()
+                            .isEmpty()
+            ) {
 
-                toast("Nama part wajib diisi.");
+                toast(
+                        "Nama part wajib diisi."
+                );
+
                 return;
             }
 
@@ -1322,82 +2259,116 @@ public class MainActivity extends AppCompatActivity {
 
             data.put(
                     "merk",
-                    merk.getText().toString().trim()
+                    merk.getText()
+                            .toString()
+                            .trim()
             );
 
             data.put(
                     "model",
-                    model.getText().toString().trim()
+                    model.getText()
+                            .toString()
+                            .trim()
             );
 
             data.put(
                     "tahunMulai",
-                    intValue(tahunMulai.getText().toString())
+                    intValue(
+                            tahunMulai.getText()
+                                    .toString()
+                    )
             );
 
             data.put(
                     "tahunSampai",
-                    intValue(tahunSampai.getText().toString())
+                    intValue(
+                            tahunSampai.getText()
+                                    .toString()
+                    )
             );
 
             data.put(
                     "kategoriPart",
-                    kategori.getText().toString().trim()
+                    kategori.getText()
+                            .toString()
+                            .trim()
             );
 
             data.put(
                     "namaPart",
-                    nama.getText().toString().trim()
+                    nama.getText()
+                            .toString()
+                            .trim()
             );
 
             data.put(
                     "kodeOEM",
-                    kodeOEM.getText().toString().trim()
+                    kodeOEM.getText()
+                            .toString()
+                            .trim()
             );
 
             data.put(
                     "kodeAftermarket",
-                    kodeAftermarket.getText().toString().trim()
+                    kodeAftermarket.getText()
+                            .toString()
+                            .trim()
             );
 
             data.put(
                     "satuan",
-                    satuan.getText().toString().trim()
+                    satuan.getText()
+                            .toString()
+                            .trim()
             );
 
             data.put(
                     "diameterDalam",
-                    getDoubleField(diameterDalam)
+                    getDoubleField(
+                            diameterDalam
+                    )
             );
 
             data.put(
                     "diameterLuar",
-                    getDoubleField(diameterLuar)
+                    getDoubleField(
+                            diameterLuar
+                    )
             );
 
             data.put(
                     "panjang",
-                    getDoubleField(panjang)
+                    getDoubleField(
+                            panjang
+                    )
             );
 
             data.put(
                     "lebar",
-                    getDoubleField(lebar)
+                    getDoubleField(
+                            lebar
+                    )
             );
 
             data.put(
                     "tebal",
-                    getDoubleField(tebal)
+                    getDoubleField(
+                            tebal
+                    )
             );
 
             data.put(
                     "ukuran",
-                    ukuran.getText().toString().trim()
+                    ukuran.getText()
+                            .toString()
+                            .trim()
             );
 
             data.put(
                     "catatan",
-                    catatan.getText().toString().trim()
+                    catatan.getText()
+                            .toString()
+                            .trim()
             );
 
             data.put(
@@ -1414,28 +2385,39 @@ public class MainActivity extends AppCompatActivity {
 
             db.collection("partCatalog")
                     .add(data)
-                    .addOnSuccessListener(x -> {
-                        toast(
-                                "Katalog berhasil disimpan."
-                        );
-                        tampilkanKatalogPart();
-                    })
-                    .addOnFailureListener(e -> {
-                        simpan.setEnabled(true);
-                        toast(
-                                "Gagal menyimpan katalog: " +
+                    .addOnSuccessListener(
+                            x -> {
+
+                                toast(
+                                        "Katalog berhasil disimpan."
+                                );
+
+                                tampilkanKatalogPart();
+                            }
+                    )
+                    .addOnFailureListener(
+                            e -> {
+
+                                simpan.setEnabled(
+                                        true
+                                );
+
+                                toast(
+                                        "Gagal menyimpan katalog: " +
                                         e.getMessage()
-                        );
-                    });
+                                );
+                            }
+                    );
         });
 
         kembali.setOnClickListener(
-                v -> tampilkanKatalogPart()
+                v ->
+                        tampilkanKatalogPart()
         );
     }
 
     // =========================================================
-    // SUBSTITUSI PART
+    // SUBSTITUSI
     // =========================================================
 
     private void tampilkanSubstitusiPart() {
@@ -1461,7 +2443,9 @@ public class MainActivity extends AppCompatActivity {
         );
 
         Button tombolCari =
-                tombol("🔎 CARI SUBSTITUSI");
+                tombol(
+                        "🔎 CARI SUBSTITUSI"
+                );
 
         layout.addView(
                 tombolCari,
@@ -1469,7 +2453,9 @@ public class MainActivity extends AppCompatActivity {
         );
 
         Button tambah =
-                tombol("➕ TAMBAH SUBSTITUSI");
+                tombol(
+                        "➕ TAMBAH SUBSTITUSI"
+                );
 
         layout.addView(
                 tambah,
@@ -1479,38 +2465,56 @@ public class MainActivity extends AppCompatActivity {
         TextView hasil =
                 new TextView(this);
 
-        hasil.setTextSize(14);
-        hasil.setPadding(
-                0, 20, 0, 20
+        hasil.setTextSize(
+                14
         );
 
-        layout.addView(hasil);
+        hasil.setPadding(
+                0,
+                20,
+                0,
+                20
+        );
+
+        layout.addView(
+                hasil
+        );
 
         Button kembali =
-                tombol("⬅️ KEMBALI");
+                tombol(
+                        "⬅️ KEMBALI"
+                );
 
         layout.addView(
                 kembali,
                 params()
         );
 
-        setContentView(layout);
+        setFormContent(layout);
 
         tombolCari.setOnClickListener(
-                v -> cariSubstitusi(
-                        cari.getText().toString().trim(),
-                        hasil
-                )
+                v ->
+                        cariSubstitusi(
+                                cari.getText()
+                                        .toString()
+                                        .trim(),
+                                hasil
+                        )
         );
 
-        cariSubstitusi("", hasil);
+        cariSubstitusi(
+                "",
+                hasil
+        );
 
         tambah.setOnClickListener(
-                v -> tampilkanFormSubstitusi()
+                v ->
+                        tampilkanFormSubstitusi()
         );
 
         kembali.setOnClickListener(
-                v -> tampilkanMenuUtama()
+                v ->
+                        tampilkanMenuUtama()
         );
     }
 
@@ -1519,143 +2523,206 @@ public class MainActivity extends AppCompatActivity {
             TextView hasil) {
 
         db.collection("substitutions")
-                .whereEqualTo("aktif", true)
+                .whereEqualTo(
+                        "aktif",
+                        true
+                )
                 .get()
-                .addOnSuccessListener(snapshot -> {
+                .addOnSuccessListener(
+                        snapshot -> {
 
-                    StringBuilder s =
-                            new StringBuilder();
+                            StringBuilder s =
+                                    new StringBuilder();
 
-                    int jumlah = 0;
+                            int jumlah = 0;
 
-                    String cari =
-                            kata.toLowerCase(
-                                    Locale.ROOT
-                            );
+                            String cari =
+                                    kata.toLowerCase(
+                                            Locale.ROOT
+                                    );
 
-                    for (DocumentSnapshot doc :
-                            snapshot.getDocuments()) {
+                            for (
+                                    DocumentSnapshot doc :
+                                    snapshot.getDocuments()
+                            ) {
 
-                        String nama =
-                                stringValue(
-                                        doc.get("namaPart")
-                                );
+                                String nama =
+                                        stringValue(
+                                                doc.get(
+                                                        "namaPart"
+                                                )
+                                        );
 
-                        String kodeAsal =
-                                stringValue(
-                                        doc.get("kodeAsal")
-                                );
+                                String kodeAsal =
+                                        stringValue(
+                                                doc.get(
+                                                        "kodeAsal"
+                                                )
+                                        );
 
-                        String kodePengganti =
-                                stringValue(
-                                        doc.get("kodePengganti")
-                                );
+                                String kodePengganti =
+                                        stringValue(
+                                                doc.get(
+                                                        "kodePengganti"
+                                                )
+                                        );
 
-                        String merk =
-                                stringValue(
-                                        doc.get("merkPengganti")
-                                );
+                                String merk =
+                                        stringValue(
+                                                doc.get(
+                                                        "merkPengganti"
+                                                )
+                                        );
 
-                        boolean cocok =
-                                kata.isEmpty()
-                                        || mengandung(
-                                        nama, cari)
-                                        || mengandung(
-                                        kodeAsal, cari)
-                                        || mengandung(
-                                        kodePengganti, cari)
-                                        || mengandung(
-                                        merk, cari);
+                                boolean cocok =
+                                        kata.isEmpty()
 
-                        if (!cocok) {
-                            continue;
-                        }
+                                        ||
 
-                        jumlah++;
-
-                        String tingkat =
-                                stringValue(
-                                        doc.get(
-                                                "tingkatKecocokan"
+                                        mengandung(
+                                                nama,
+                                                cari
                                         )
+
+                                        ||
+
+                                        mengandung(
+                                                kodeAsal,
+                                                cari
+                                        )
+
+                                        ||
+
+                                        mengandung(
+                                                kodePengganti,
+                                                cari
+                                        )
+
+                                        ||
+
+                                        mengandung(
+                                                merk,
+                                                cari
+                                        );
+
+                                if (!cocok) {
+                                    continue;
+                                }
+
+                                jumlah++;
+
+                                String tingkat =
+                                        stringValue(
+                                                doc.get(
+                                                        "tingkatKecocokan"
+                                                )
+                                        );
+
+                                s.append(
+                                        "━━━━━━━━━━━━━━━━━━\n"
                                 );
 
-                        s.append(
-                                "━━━━━━━━━━━━━━━━━━\n"
-                        );
-
-                        s.append("🔧 ")
-                                .append(nama)
-                                .append("\n");
-
-                        s.append("Kode asal: ")
-                                .append(kodeAsal)
-                                .append("\n");
-
-                        s.append("Kode pengganti: ")
-                                .append(kodePengganti)
-                                .append("\n");
-
-                        if (!merk.isEmpty()) {
-                            s.append("Merk pengganti: ")
-                                    .append(merk)
-                                    .append("\n");
-                        }
-
-                        s.append("Kecocokan: ")
-                                .append(
-                                        iconKecocokan(
-                                                tingkat
-                                        )
+                                s.append(
+                                        "🔧 "
                                 )
-                                .append(" ")
-                                .append(tingkat)
-                                .append("\n");
+                                        .append(nama)
+                                        .append("\n");
 
-                        s.append(
-                                "Ukuran: "
-                        );
+                                s.append(
+                                        "Kode asal: "
+                                )
+                                        .append(kodeAsal)
+                                        .append("\n");
 
-                        s.append(
-                                ukuranText(doc)
-                        );
+                                s.append(
+                                        "Kode pengganti: "
+                                )
+                                        .append(
+                                                kodePengganti
+                                        )
+                                        .append("\n");
 
-                        s.append("\n");
+                                if (!merk.isEmpty()) {
 
-                        String catatan =
-                                stringValue(
-                                        doc.get("catatan")
+                                    s.append(
+                                            "Merk pengganti: "
+                                    )
+                                            .append(
+                                                    merk
+                                            )
+                                            .append("\n");
+                                }
+
+                                s.append(
+                                        "Kecocokan: "
+                                )
+                                        .append(
+                                                iconKecocokan(
+                                                        tingkat
+                                                )
+                                        )
+                                        .append(" ")
+                                        .append(tingkat)
+                                        .append("\n");
+
+                                s.append(
+                                        "Ukuran: "
                                 );
 
-                        if (!catatan.isEmpty()) {
-                            s.append("Catatan: ")
-                                    .append(catatan)
-                                    .append("\n");
-                        }
-                    }
+                                s.append(
+                                        ukuranText(doc)
+                                );
 
-                    if (jumlah == 0) {
-                        s.append(
-                                "Substitusi belum ditemukan."
-                        );
-                    } else {
-                        s.insert(
-                                0,
-                                "Ditemukan " +
+                                s.append("\n");
+
+                                String catatan =
+                                        stringValue(
+                                                doc.get(
+                                                        "catatan"
+                                                )
+                                        );
+
+                                if (!catatan.isEmpty()) {
+
+                                    s.append(
+                                            "Catatan: "
+                                    )
+                                            .append(
+                                                    catatan
+                                            )
+                                            .append("\n");
+                                }
+                            }
+
+                            if (jumlah == 0) {
+
+                                s.append(
+                                        "Substitusi belum ditemukan."
+                                );
+
+                            } else {
+
+                                s.insert(
+                                        0,
+                                        "Ditemukan " +
                                         jumlah +
                                         " substitusi.\n"
-                        );
-                    }
+                                );
+                            }
 
-                    hasil.setText(
-                            s.toString()
-                    );
-                })
-                .addOnFailureListener(e ->
-                        hasil.setText(
-                                "Gagal mengambil substitusi:\n" +
+                            hasil.setText(
+                                    s.toString()
+                            );
+                        }
+                )
+
+                .addOnFailureListener(
+                        e ->
+                                hasil.setText(
+                                        "Gagal mengambil substitusi:\n" +
                                         e.getMessage()
-                        ));
+                                )
+                );
     }
 
     // =========================================================
@@ -1665,40 +2732,56 @@ public class MainActivity extends AppCompatActivity {
     private void tampilkanFormSubstitusi() {
 
         db.collection("partCatalog")
-                .whereEqualTo("aktif", true)
+                .whereEqualTo(
+                        "aktif",
+                        true
+                )
                 .get()
-                .addOnSuccessListener(snapshot -> {
+                .addOnSuccessListener(
+                        snapshot -> {
 
-                    if (snapshot.isEmpty()) {
-                        toast(
-                                "Isi Katalog Part Motor terlebih dahulu."
-                        );
-                        return;
-                    }
+                            if (snapshot.isEmpty()) {
 
-                    List<DocumentSnapshot> katalog =
-                            new ArrayList<>(
-                                    snapshot.getDocuments()
+                                toast(
+                                        "Isi Katalog Part Motor terlebih dahulu."
+                                );
+
+                                return;
+                            }
+
+                            List<DocumentSnapshot> katalog =
+                                    new ArrayList<>(
+                                            snapshot.getDocuments()
+                                    );
+
+                            pilihPartAsal(
+                                    katalog
                             );
+                        }
+                )
 
-                    pilihPartAsal(
-                            katalog
-                    );
-                })
-                .addOnFailureListener(e ->
-                        toast(
-                                "Gagal mengambil katalog: " +
+                .addOnFailureListener(
+                        e ->
+                                toast(
+                                        "Gagal mengambil katalog: " +
                                         e.getMessage()
-                        ));
+                                )
+                );
     }
 
     private void pilihPartAsal(
             List<DocumentSnapshot> katalog) {
 
         String[] daftar =
-                new String[katalog.size()];
+                new String[
+                        katalog.size()
+                ];
 
-        for (int i = 0; i < katalog.size(); i++) {
+        for (
+                int i = 0;
+                i < katalog.size();
+                i++
+        ) {
 
             DocumentSnapshot d =
                     katalog.get(i);
@@ -1708,15 +2791,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         new AlertDialog.Builder(this)
+
                 .setTitle(
                         "Pilih PART ASAL"
                 )
+
                 .setItems(
                         daftar,
                         (dialog, which) -> {
 
                             DocumentSnapshot asal =
-                                    katalog.get(which);
+                                    katalog.get(
+                                            which
+                                    );
 
                             pilihPartPengganti(
                                     katalog,
@@ -1724,10 +2811,12 @@ public class MainActivity extends AppCompatActivity {
                             );
                         }
                 )
+
                 .setNegativeButton(
                         "BATAL",
                         null
                 )
+
                 .show();
     }
 
@@ -1736,9 +2825,15 @@ public class MainActivity extends AppCompatActivity {
             DocumentSnapshot asal) {
 
         String[] daftar =
-                new String[katalog.size()];
+                new String[
+                        katalog.size()
+                ];
 
-        for (int i = 0; i < katalog.size(); i++) {
+        for (
+                int i = 0;
+                i < katalog.size();
+                i++
+        ) {
 
             DocumentSnapshot d =
                     katalog.get(i);
@@ -1748,18 +2843,26 @@ public class MainActivity extends AppCompatActivity {
         }
 
         new AlertDialog.Builder(this)
+
                 .setTitle(
                         "Pilih PART PENGGANTI"
                 )
+
                 .setItems(
                         daftar,
                         (dialog, which) -> {
 
                             DocumentSnapshot pengganti =
-                                    katalog.get(which);
+                                    katalog.get(
+                                            which
+                                    );
 
-                            if (asal.getId().equals(
-                                    pengganti.getId())) {
+                            if (
+                                    asal.getId()
+                                            .equals(
+                                                    pengganti.getId()
+                                            )
+                            ) {
 
                                 toast(
                                         "Part asal dan pengganti tidak boleh sama."
@@ -1774,10 +2877,12 @@ public class MainActivity extends AppCompatActivity {
                             );
                         }
                 )
+
                 .setNegativeButton(
                         "BATAL",
                         null
                 )
+
                 .show();
     }
 
@@ -1834,20 +2939,26 @@ public class MainActivity extends AppCompatActivity {
                 iconKecocokan(kecocokan)
         );
 
-        pesan.append(" ")
+        pesan.append(
+                " "
+        )
                 .append(kecocokan);
 
         new AlertDialog.Builder(this)
+
                 .setTitle(
                         "Cek Substitusi"
                 )
+
                 .setMessage(
                         pesan.toString()
                 )
+
                 .setNegativeButton(
                         "BATAL",
                         null
                 )
+
                 .setPositiveButton(
                         "SIMPAN",
                         (dialog, which) ->
@@ -1857,6 +2968,7 @@ public class MainActivity extends AppCompatActivity {
                                         kecocokan
                                 )
                 )
+
                 .show();
     }
 
@@ -1976,15 +3088,19 @@ public class MainActivity extends AppCompatActivity {
 
         db.collection("substitutions")
                 .add(data)
-                .addOnSuccessListener(x ->
-                        toast(
-                                "Substitusi berhasil disimpan."
-                        ))
-                .addOnFailureListener(e ->
-                        toast(
-                                "Gagal menyimpan substitusi: " +
+                .addOnSuccessListener(
+                        x ->
+                                toast(
+                                        "Substitusi berhasil disimpan."
+                                )
+                )
+                .addOnFailureListener(
+                        e ->
+                                toast(
+                                        "Gagal menyimpan substitusi: " +
                                         e.getMessage()
-                        ));
+                                )
+                );
     }
 
     // =========================================================
@@ -2021,29 +3137,44 @@ public class MainActivity extends AppCompatActivity {
                             field
                     );
 
-            // Ukuran yang kosong tidak dihitung
-            if (a == null || b == null) {
+            if (
+                    a == null ||
+                    b == null
+            ) {
+
                 continue;
             }
 
             tersedia++;
 
-            if (Math.abs(a - b) < 0.001) {
+            if (
+                    Math.abs(a - b)
+                            < 0.001
+            ) {
+
                 sama++;
+
             } else {
+
                 berbeda++;
             }
         }
 
         if (tersedia == 0) {
+
             return "PERLU CEK UKURAN";
         }
 
         if (sama == tersedia) {
+
             return "SAMA UKURAN";
         }
 
-        if (berbeda > 0 && sama > 0) {
+        if (
+                berbeda > 0 &&
+                sama > 0
+        ) {
+
             return "PERLU CEK";
         }
 
@@ -2062,8 +3193,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (value instanceof Number) {
+
             double n =
-                    ((Number) value).doubleValue();
+                    (
+                            (Number) value
+                    ).doubleValue();
 
             if (n <= 0) {
                 return null;
@@ -2077,7 +3211,10 @@ public class MainActivity extends AppCompatActivity {
             String s =
                     String.valueOf(value)
                             .trim()
-                            .replace(",", ".");
+                            .replace(
+                                    ",",
+                                    "."
+                            );
 
             if (s.isEmpty()) {
                 return null;
@@ -2093,6 +3230,7 @@ public class MainActivity extends AppCompatActivity {
             return n;
 
         } catch (Exception e) {
+
             return null;
         }
     }
@@ -2103,10 +3241,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void scanNotaSupplier() {
 
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.CAMERA
-        ) != PackageManager.PERMISSION_GRANTED) {
+        if (
+                ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.CAMERA
+                )
+                !=
+                PackageManager.PERMISSION_GRANTED
+        ) {
 
             ActivityCompat.requestPermissions(
                     this,
@@ -2129,9 +3271,11 @@ public class MainActivity extends AppCompatActivity {
                         MediaStore.ACTION_IMAGE_CAPTURE
                 );
 
-        if (intent.resolveActivity(
-                getPackageManager()
-        ) != null) {
+        if (
+                intent.resolveActivity(
+                        getPackageManager()
+                ) != null
+        ) {
 
             startActivityForResult(
                     intent,
@@ -2139,6 +3283,7 @@ public class MainActivity extends AppCompatActivity {
             );
 
         } else {
+
             toast(
                     "Kamera tidak tersedia."
             );
@@ -2157,11 +3302,16 @@ public class MainActivity extends AppCompatActivity {
                 grantResults
         );
 
-        if (requestCode == REQUEST_CAMERA) {
+        if (
+                requestCode ==
+                REQUEST_CAMERA
+        ) {
 
-            if (grantResults.length > 0 &&
+            if (
+                    grantResults.length > 0 &&
                     grantResults[0] ==
-                            PackageManager.PERMISSION_GRANTED) {
+                            PackageManager.PERMISSION_GRANTED
+            ) {
 
                 bukaKamera();
 
@@ -2186,9 +3336,15 @@ public class MainActivity extends AppCompatActivity {
                 data
         );
 
-        if (requestCode == REQUEST_CAMERA &&
-                resultCode == RESULT_OK &&
-                data != null) {
+        if (
+                requestCode ==
+                        REQUEST_CAMERA
+                &&
+                resultCode ==
+                        RESULT_OK
+                &&
+                data != null
+        ) {
 
             Bundle extras =
                     data.getExtras();
@@ -2203,12 +3359,14 @@ public class MainActivity extends AppCompatActivity {
                     );
 
             if (bitmap != null) {
+
                 prosesOCR(bitmap);
             }
         }
     }
 
-    private void prosesOCR(Bitmap bitmap) {
+    private void prosesOCR(
+            Bitmap bitmap) {
 
         InputImage image =
                 InputImage.fromBitmap(
@@ -2218,20 +3376,23 @@ public class MainActivity extends AppCompatActivity {
 
         TextRecognizer recognizer =
                 TextRecognition.getClient(
-                        TextRecognizerOptions.DEFAULT_OPTIONS
+                        TextRecognizerOptions
+                                .DEFAULT_OPTIONS
                 );
 
         recognizer.process(image)
                 .addOnSuccessListener(
-                        text -> tampilkanHasilOCR(
-                                text
-                        )
+                        text ->
+                                tampilkanHasilOCR(
+                                        text
+                                )
                 )
                 .addOnFailureListener(
-                        e -> toast(
-                                "OCR gagal: " +
+                        e ->
+                                toast(
+                                        "OCR gagal: " +
                                         e.getMessage()
-                        )
+                                )
                 );
     }
 
@@ -2241,8 +3402,10 @@ public class MainActivity extends AppCompatActivity {
         String isi =
                 text.getText();
 
-        if (isi == null ||
-                isi.trim().isEmpty()) {
+        if (
+                isi == null ||
+                isi.trim().isEmpty()
+        ) {
 
             toast(
                     "Tulisan pada nota tidak terbaca."
@@ -2252,13 +3415,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         String nama =
-                ambilNamaPartOCR(isi);
+                ambilNamaPartOCR(
+                        isi
+                );
 
         double harga =
-                ambilHargaOCR(isi);
+                ambilHargaOCR(
+                        isi
+                );
 
         int qty =
-                ambilQtyOCR(isi);
+                ambilQtyOCR(
+                        isi
+                );
 
         StringBuilder hasil =
                 new StringBuilder();
@@ -2302,16 +3471,20 @@ public class MainActivity extends AppCompatActivity {
                 .append("\n\n");
 
         new AlertDialog.Builder(this)
+
                 .setTitle(
                         "📷 HASIL SCAN"
                 )
+
                 .setMessage(
                         hasil.toString()
                 )
+
                 .setNegativeButton(
                         "TUTUP",
                         null
                 )
+
                 .setPositiveButton(
                         "PAKAI DATA",
                         (dialog, which) -> {
@@ -2319,12 +3492,14 @@ public class MainActivity extends AppCompatActivity {
                             tampilkanFormTambahPart();
 
                             if (!nama.isEmpty()) {
+
                                 namaPartInput.setText(
                                         nama
                                 );
                             }
 
                             if (harga > 0) {
+
                                 hargaPokokInput.setText(
                                         String.valueOf(
                                                 (long) harga
@@ -2333,11 +3508,16 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             if (qty > 0) {
+
                                 stokInput.setText(
-                                        String.valueOf(qty)
+                                        String.valueOf(
+                                                qty
+                                        )
                                 );
                             }
-                        })
+                        }
+                )
+
                 .show();
     }
 
@@ -2345,7 +3525,9 @@ public class MainActivity extends AppCompatActivity {
             String text) {
 
         String[] baris =
-                text.split("\\r?\\n");
+                text.split(
+                        "\\r?\\n"
+                );
 
         for (String barisSatu :
                 baris) {
@@ -2362,15 +3544,24 @@ public class MainActivity extends AppCompatActivity {
                             Locale.ROOT
                     );
 
-            if (lower.contains("total")
-                    || lower.contains("subtotal")
-                    || lower.contains("harga")
-                    || lower.contains("qty")
-                    || lower.contains("jumlah")
-                    || lower.contains("rp")
-                    || lower.matches(
-                    ".*\\d{3,}.*"
-            )) {
+            if (
+                    lower.contains("total")
+                    ||
+                    lower.contains("subtotal")
+                    ||
+                    lower.contains("harga")
+                    ||
+                    lower.contains("qty")
+                    ||
+                    lower.contains("jumlah")
+                    ||
+                    lower.contains("rp")
+                    ||
+                    lower.matches(
+                            ".*\\d{3,}.*"
+                    )
+            ) {
+
                 continue;
             }
 
@@ -2400,9 +3591,14 @@ public class MainActivity extends AppCompatActivity {
                     m.group(1);
 
             double nilai =
-                    parseOCRNumber(angka);
+                    parseOCRNumber(
+                            angka
+                    );
 
-            if (nilai > terbesar) {
+            if (
+                    nilai > terbesar
+            ) {
+
                 terbesar = nilai;
             }
         }
@@ -2425,9 +3621,11 @@ public class MainActivity extends AppCompatActivity {
         if (m.find()) {
 
             try {
+
                 return Integer.parseInt(
                         m.group(1)
                 );
+
             } catch (Exception ignored) {
             }
         }
@@ -2442,12 +3640,19 @@ public class MainActivity extends AppCompatActivity {
 
             String s =
                     value
-                            .replace(".", "")
-                            .replace(",", "");
+                            .replace(
+                                    ".",
+                                    ""
+                            )
+                            .replace(
+                                    ",",
+                                    ""
+                            );
 
             return Double.parseDouble(s);
 
         } catch (Exception e) {
+
             return 0;
         }
     }
@@ -2466,17 +3671,43 @@ public class MainActivity extends AppCompatActivity {
         );
 
         layout.setPadding(
-                25, 25, 25, 25
+                25,
+                25,
+                25,
+                25
         );
+
+        return layout;
+    }
+
+    /*
+     * PERBAIKAN UTAMA:
+     *
+     * LinearLayout tidak langsung dimasukkan ke ScrollView
+     * sampai semua isi form selesai dibuat.
+     *
+     * Ini mencegah:
+     * "The specified child already has a parent"
+     *
+     * yang menyebabkan aplikasi langsung crash.
+     */
+    private void setFormContent(
+            LinearLayout layout) {
 
         ScrollView scroll =
                 new ScrollView(this);
 
-        scroll.addView(layout);
+        scroll.setFillViewport(
+                true
+        );
 
-        setContentView(scroll);
+        scroll.addView(
+                layout
+        );
 
-        return layout;
+        setContentView(
+                scroll
+        );
     }
 
     private TextView buatJudul(
@@ -2486,13 +3717,20 @@ public class MainActivity extends AppCompatActivity {
                 new TextView(this);
 
         t.setText(text);
-        t.setTextSize(23);
+
+        t.setTextSize(
+                23
+        );
+
         t.setGravity(
                 Gravity.CENTER
         );
 
         t.setPadding(
-                0, 15, 0, 25
+                0,
+                15,
+                0,
+                25
         );
 
         return t;
@@ -2505,9 +3743,16 @@ public class MainActivity extends AppCompatActivity {
                 new EditText(this);
 
         e.setHint(hint);
-        e.setTextSize(16);
+
+        e.setTextSize(
+                16
+        );
+
         e.setPadding(
-                15, 10, 15, 10
+                15,
+                10,
+                15,
+                10
         );
 
         return e;
@@ -2520,7 +3765,10 @@ public class MainActivity extends AppCompatActivity {
                 new Button(this);
 
         b.setText(text);
-        b.setTextSize(15);
+
+        b.setTextSize(
+                15
+        );
 
         return b;
     }
@@ -2538,7 +3786,7 @@ public class MainActivity extends AppCompatActivity {
 
         editText.setInputType(
                 InputType.TYPE_CLASS_NUMBER |
-                        InputType.TYPE_NUMBER_FLAG_DECIMAL
+                InputType.TYPE_NUMBER_FLAG_DECIMAL
         );
     }
 
@@ -2553,7 +3801,9 @@ public class MainActivity extends AppCompatActivity {
             return "";
         }
 
-        return String.valueOf(value);
+        return String.valueOf(
+                value
+        );
     }
 
     private double numberValue(
@@ -2564,18 +3814,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (value instanceof Number) {
-            return ((Number) value)
-                    .doubleValue();
+
+            return (
+                    (Number) value
+            ).doubleValue();
         }
 
         try {
 
             return Double.parseDouble(
                     String.valueOf(value)
-                            .replace(",", ".")
+                            .replace(
+                                    ",",
+                                    "."
+                            )
             );
 
         } catch (Exception e) {
+
             return 0;
         }
     }
@@ -2588,15 +3844,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (value instanceof Number) {
-            return ((Number) value)
-                    .intValue();
+
+            return (
+                    (Number) value
+            ).intValue();
         }
 
         try {
+
             return Integer.parseInt(
                     String.valueOf(value)
             );
+
         } catch (Exception e) {
+
             return 0;
         }
     }
@@ -2605,15 +3866,19 @@ public class MainActivity extends AppCompatActivity {
             EditText editText) {
 
         return parseDouble(
-                editText.getText().toString()
+                editText.getText()
+                        .toString()
         );
     }
 
     private double parseDouble(
             String text) {
 
-        if (text == null ||
-                text.trim().isEmpty()) {
+        if (
+                text == null ||
+                text.trim().isEmpty()
+        ) {
+
             return 0;
         }
 
@@ -2621,17 +3886,26 @@ public class MainActivity extends AppCompatActivity {
 
             return Double.parseDouble(
                     text.trim()
-                            .replace(".", "")
-                            .replace(",", ".")
+                            .replace(
+                                    ".",
+                                    ""
+                            )
+                            .replace(
+                                    ",",
+                                    "."
+                            )
             );
 
         } catch (Exception e) {
 
             try {
+
                 return Double.parseDouble(
                         text.trim()
                 );
+
             } catch (Exception ignored) {
+
                 return 0;
             }
         }
@@ -2645,16 +3919,27 @@ public class MainActivity extends AppCompatActivity {
                         localeIndonesia
                 );
 
-        nf.setMaximumFractionDigits(0);
-        nf.setMinimumFractionDigits(0);
+        nf.setMaximumFractionDigits(
+                0
+        );
 
-        return nf.format(value);
+        nf.setMinimumFractionDigits(
+                0
+        );
+
+        return nf.format(
+                value
+        );
     }
 
     private String formatAngka(
             double value) {
 
-        if (value == Math.floor(value)) {
+        if (
+                value ==
+                Math.floor(value)
+        ) {
+
             return String.valueOf(
                     (long) value
             );
@@ -2709,25 +3994,46 @@ public class MainActivity extends AppCompatActivity {
                 new StringBuilder();
 
         if (!merk.isEmpty()) {
-            s.append(merk);
+
+            s.append(
+                    merk
+            );
         }
 
         if (!model.isEmpty()) {
 
-            if (s.length() > 0) {
-                s.append(" ");
+            if (
+                    s.length() > 0
+            ) {
+
+                s.append(
+                        " "
+                );
             }
 
-            s.append(model);
+            s.append(
+                    model
+            );
         }
 
-        s.append(" - ")
-                .append(nama);
+        s.append(
+                " - "
+        )
+                .append(
+                        nama
+                );
 
         if (!kode.isEmpty()) {
-            s.append(" [")
-                    .append(kode)
-                    .append("]");
+
+            s.append(
+                    " ["
+            )
+                    .append(
+                            kode
+                    )
+                    .append(
+                            "]"
+                    );
         }
 
         return s.toString();
@@ -2742,11 +4048,14 @@ public class MainActivity extends AppCompatActivity {
                 );
 
         if (!oem.isEmpty()) {
+
             return oem;
         }
 
         return stringValue(
-                doc.get("kodeAftermarket")
+                doc.get(
+                        "kodeAftermarket"
+                )
         );
     }
 
@@ -2759,6 +4068,7 @@ public class MainActivity extends AppCompatActivity {
                 );
 
         if (!ukuran.isEmpty()) {
+
             return ukuran;
         }
 
@@ -2768,34 +4078,47 @@ public class MainActivity extends AppCompatActivity {
         appendDimension(
                 s,
                 "ID",
-                doc.get("diameterDalam")
+                doc.get(
+                        "diameterDalam"
+                )
         );
 
         appendDimension(
                 s,
                 "OD",
-                doc.get("diameterLuar")
+                doc.get(
+                        "diameterLuar"
+                )
         );
 
         appendDimension(
                 s,
                 "P",
-                doc.get("panjang")
+                doc.get(
+                        "panjang"
+                )
         );
 
         appendDimension(
                 s,
                 "L",
-                doc.get("lebar")
+                doc.get(
+                        "lebar"
+                )
         );
 
         appendDimension(
                 s,
                 "T",
-                doc.get("tebal")
+                doc.get(
+                        "tebal"
+                )
         );
 
-        if (s.length() == 0) {
+        if (
+                s.length() == 0
+        ) {
+
             return "Belum ada ukuran";
         }
 
@@ -2814,33 +4137,63 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        if (s.length() > 0) {
-            s.append(" | ");
+        if (
+                s.length() > 0
+        ) {
+
+            s.append(
+                    " | "
+            );
         }
 
-        s.append(nama)
+        s.append(
+                nama
+        )
                 .append("=")
-                .append(formatAngka(n))
-                .append(" mm");
+                .append(
+                        formatAngka(n)
+                )
+                .append(
+                        " mm"
+                );
     }
 
     private String iconKecocokan(
             String text) {
 
-        if ("SAMA UKURAN".equals(text)) {
+        if (
+                "SAMA UKURAN".equals(
+                        text
+                )
+        ) {
+
             return "🟢";
         }
 
-        if ("PERLU CEK".equals(text)) {
+        if (
+                "PERLU CEK".equals(
+                        text
+                )
+        ) {
+
             return "🟡";
         }
 
-        if ("UKURAN BERBEDA".equals(text)) {
+        if (
+                "UKURAN BERBEDA".equals(
+                        text
+                )
+        ) {
+
             return "🔴";
         }
 
         return "🟡";
     }
+
+    // =========================================================
+    // TOAST
+    // =========================================================
 
     private void toast(
             String text) {
